@@ -311,59 +311,11 @@ const teaData: Record<string, TeaData> = {
   }
 };
 
-// Layout configurations for each tea type
-const getLayoutConfig = (teaType: string | undefined) => {
-  switch (teaType) {
-    case 'white':
-      return {
-        firstSection: { origin: 'full', flavor: 'none', processing: 'full' },
-        secondSection: { health: 'full', brewing: 'full', facts: 'full' },
-        style: 'delicate'
-      };
-    case 'yellow':
-      return {
-        firstSection: { origin: 'center', flavor: 'center', processing: 'center' },
-        secondSection: { health: 'center', brewing: 'center', facts: 'center' },
-        style: 'premium'
-      };
-    case 'green':
-      return {
-        firstSection: { origin: 'left', flavor: 'right', processing: 'full' },
-        secondSection: { health: 'left', brewing: 'right', facts: 'full' },
-        style: 'fresh'
-      };
-    case 'oolong':
-      return {
-        firstSection: { origin: 'left', flavor: 'right', processing: 'left' },
-        secondSection: { health: 'right', brewing: 'left', facts: 'right' },
-        style: 'balanced'
-      };
-    case 'black':
-      return {
-        firstSection: { origin: 'full', flavor: 'full', processing: 'full' },
-        secondSection: { health: 'full', brewing: 'full', facts: 'full' },
-        style: 'bold'
-      };
-    case 'pu-erh':
-      return {
-        firstSection: { origin: 'right', flavor: 'left', processing: 'right' },
-        secondSection: { health: 'left', brewing: 'right', facts: 'left' },
-        style: 'sophisticated'
-      };
-    default:
-      return {
-        firstSection: { origin: 'left', flavor: 'right', processing: 'full' },
-        secondSection: { health: 'left', brewing: 'right', facts: 'full' },
-        style: 'default'
-      };
-  }
-};
 
 export default function Tea() {
   const { teaType } = useParams<{ teaType: string }>();
   const navigate = useNavigate();
   const tea = teaType ? teaData[teaType] : null;
-  const layoutConfig = getLayoutConfig(teaType);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [firstQuizVisible, setFirstQuizVisible] = useState(false);
   const [secondQuizVisible, setSecondQuizVisible] = useState(false);

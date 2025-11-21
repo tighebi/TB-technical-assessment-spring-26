@@ -95,19 +95,31 @@ export default function Home() {
   
   // Get the content for a column at a given position and side
   const getColumnContent = (position: number, side: 'left' | 'right', isBack: boolean) => {
-    // If back face of the flipping column, show the next column that appears
-    if (isBack) {
-      if (flippingColumn === 'right' && side === 'right') {
-        // Right column flipping forward - back face shows left column of next page (column 5 when going from page 2 to 3)
-        const nextPos = currentPosition + 1;
-        return nextPos < 3 ? allTeas[nextPos * 2] : null; // Show left column of next page
-      } else if (flippingColumn === 'left' && side === 'left') {
-        // Left column flipping backward - back face shows right column of previous page
-        const prevPos = currentPosition - 1;
-        return prevPos >= 0 ? allTeas[prevPos * 2 + 1] : null; // Show right column of previous page
+    // If back face of the flipping column, show the next sequential column's content
+    if (isBack && isFlipping && flippingColumn === side) {
+      if (flippingColumn === 'right') {
+        // Right column flipping forward - back face shows the next sequential column
+        // Calculate the current column's tea index
+        const currentTeaIndex = position * 2 + 1; // Right column of current page
+        // Next sequential column is the left column of next page
+        const nextTeaIndex = currentTeaIndex + 1;
+        // Ensure we don't go beyond available teas
+        if (nextTeaIndex < allTeas.length) {
+          return allTeas[nextTeaIndex];
+        }
+        return null;
+      } else if (flippingColumn === 'left') {
+        // Left column flipping backward - back face shows the previous sequential column
+        // Calculate the current column's tea index
+        const currentTeaIndex = position * 2; // Left column of current page
+        // Previous sequential column is the right column of previous page
+        const prevTeaIndex = currentTeaIndex - 1;
+        // Ensure we don't go below 0
+        if (prevTeaIndex >= 0) {
+          return allTeas[prevTeaIndex];
+        }
+        return null;
       }
-      // If back face but not the flipping column, return null
-      return null;
     }
     // Front face shows current page content
     if (side === 'left') {
