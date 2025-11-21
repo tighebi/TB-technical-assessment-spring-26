@@ -1,64 +1,69 @@
 /**
  * Home.tsx
  * ----------
- * Builds the “IdeaCon stand” illusion:
- * - Top section mimics a wooden sign you “walk up” to.
- * - Bottom section is a three-panel brochure that flips to reveal a deep dive.
- * This file owns the placeholder content so the user can swap in a real topic later.
+ * Tea Education - IdeaCon Stand
+ * - Top section: Welcome to the Tea Education showcase
+ * - Bottom section: Interactive brochure with tea highlights and types
  */
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import './Home.css';
 
 /**
- * Placeholder highlight cards for the brochure’s front side.
- * Real content can drop in later without touching layout logic.
+ * Tea highlights for the brochure's front side (3 teas)
  */
-const funFacts = [
+const teaHighlights = [
   {
-    title: 'Super fun fact',
-    copy: 'Information goes here. Once I pick a topic I guess.'
+    title: 'White Tea',
+    copy: 'The most delicate tea with subtle, sweet flavors. Minimal processing preserves natural antioxidants.',
+    link: '/tea/white'
   },
   {
-    title: 'another fun fact',
-    copy: 'More information goes here. I guess.'
+    title: 'Yellow Tea',
+    copy: 'The rarest tea type with a mellow, smooth flavor. Unique "sealed yellowing" process creates its distinctive character.',
+    link: '/tea/yellow'
   },
   {
-    title: 'even more fun facts',
-    copy: 'Another thing I thought was cool, probably.'
+    title: 'Green Tea',
+    copy: 'Fresh, grassy, and vegetal. Known for high antioxidant content and numerous health benefits.',
+    link: '/tea/green'
   },
 ];
 
 /**
- * Placeholder deep dive cards for the brochure’s back side.
- * Mirrors the count of the highlight side so the flipping animation feels balanced.
+ * Tea types for the brochure's back side (3 teas)
  */
-const deepDive = [
+const teaTypes = [
   {
-    heading: 'Crazy Information',
-    body: 'Some stuff about whatever topic I end up picking. Maybe a cool story or explanation.'
+    heading: 'Oolong Tea',
+    body: 'Partially oxidized, offering a complex range from floral to toasty. The perfect balance between green and black.',
+    link: '/tea/oolong'
   },
   {
-    heading: 'Key Takeaway',
-    body: 'This is a key takeaway, I guess. Something important to remember probably.'
+    heading: 'Black Tea',
+    body: 'Bold, robust, and full-bodied. Fully oxidized for a strong flavor with notes of honey, caramel, and spices.',
+    link: '/tea/black'
   },
   {
-    heading: 'Next Steps',
-    body: 'Probably more stuff about the topic.'
+    heading: 'Pu-erh Tea',
+    body: 'Aged and fermented tea that improves with time. Earthy, woody, and complex with unique health benefits.',
+    link: '/tea/pu-erh'
   },
 ];
 
-export default function Home() {
-  /**
-   * Controls which face of the brochure is visible.
-   * When true → show deep dive; false → show highlights.
-   */
-  const [isFlipped, setIsFlipped] = useState(false);
+interface Ripple {
+  x: number;
+  y: number;
+  id: number;
+}
 
-  /**
-   * Keeps the sample API call for connectivity testing.
-   * Replace or remove once a real backend interaction exists.
-   */
+export default function Home() {
+  const navigate = useNavigate();
+  const [isFlipped, setIsFlipped] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const [ripples, setRipples] = useState<Ripple[]>([]);
+
   useEffect(() => {
     api.get('/api/test')
       .then(response => {
@@ -66,24 +71,67 @@ export default function Home() {
       })
       .catch(error => {
         console.error('API connection failed:', error.message);
-        // Silently fail for now since this is just a connectivity test
       });
   }, []);
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
+    // Create multiple ripples at click position
+    const x = e.clientX;
+    const y = e.clientY;
+    const baseId = Date.now();
+    
+    // Create 2 ripples with staggered delays
+    for (let i = 0; i < 2; i++) {
+      const id = baseId + i;
+      setTimeout(() => {
+        setRipples(prev => [...prev, { x, y, id }]);
+        
+        setTimeout(() => {
+          setRipples(prev => prev.filter(ripple => ripple.id !== id));
+        }, 2000);
+      }, i * 200); // Stagger each ripple by 200ms
+    }
+  };
+
+  // Calculate opacity for fade-in effect
+  // Starts fading in when scrollY is around 400px, fully visible around 800px
+  const discoverOpacity = Math.min(1, Math.max(0, (scrollY - 400) / 400));
+
   return (
-    <main className="home-scene">
+    <main className="home-scene" onClick={handleBackgroundClick}>
+      {/* Ripple effects */}
+      {ripples.map(ripple => (
+        <span
+          key={ripple.id}
+          className="ripple-effect"
+          style={{
+            left: `${ripple.x}px`,
+            top: `${ripple.y}px`
+          }}
+        />
+      ))}
+      
       {/* Stand / marquee hero */}
       <section id="stand" className="stand-stage">
-        <div className="stand-greeting">Welcome to the IdeaCon floor</div>
+        <div className="stand-greeting">Welcome to Hack4Impact IdeaCon</div>
         <div className="stand-frame">
           <div className="stand-board">
             <p className="stand-pretitle">Showcase Spotlight</p>
-            <h1 className="stand-title">Some Topic</h1>
-            <p className="stand-question">A question about it maybe?</p>
+            <h1 className="stand-title">The World of Tea</h1>
+            <p className="stand-question">What makes each tea type unique?</p>
             <div className="stand-footer">
-              <span>Some Title</span>
+              <span>Your Tea Education Journey</span>
               <a className="scroll-cta" href="#brochure">
-                Scroll to the brochure
+                Explore Tea Types
                 <span aria-hidden="true">↓</span>
               </a>
             </div>
@@ -91,6 +139,18 @@ export default function Home() {
           <div className="stand-post left" />
           <div className="stand-post right" />
         </div>
+      </section>
+
+      {/* Discover Tea fade-in section */}
+      <section 
+        className="discover-section"
+        style={{ 
+          opacity: discoverOpacity,
+          transform: `translateY(${discoverOpacity < 1 ? 20 : 0}px)`,
+          transition: 'opacity 0.3s ease, transform 0.3s ease'
+        }}
+      >
+        <h2 className="discover-title">Discover Tea</h2>
       </section>
 
       {/* Brochure with flip interaction */}
@@ -101,21 +161,29 @@ export default function Home() {
               <button
                 className="page-flip-corner flip-right"
                 onClick={() => setIsFlipped(true)}
-                aria-label="Flip to deep dive"
+                aria-label="Flip to explore tea types"
               >
                 <span className="corner-arrow">←</span>
               </button>
               <header className="brochure-header">
-                <p>Highlights</p>
-                <h2>Some Topic</h2>
-                <span className="header-note">I'll add real content later probably.</span>
+                <p>Featured Types</p>
+                <h2>Featured Types</h2>
+                <span className="header-note">Click any card to learn more</span>
               </header>
               <div className="brochure-grid">
-                {funFacts.map(({ title, copy }) => (
-                  <article key={title} className="brochure-card">
+                {teaHighlights.map(({ title, copy, link }) => (
+                  <article 
+                    key={title} 
+                    className="brochure-card"
+                    onClick={() => {
+                      window.scrollTo(0, 0);
+                      navigate(link);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <h3>{title}</h3>
                     <p>{copy}</p>
-                    <span className="card-placeholder">A question maybe?</span>
+                    <span className="card-placeholder">Learn More →</span>
                   </article>
                 ))}
               </div>
@@ -125,21 +193,29 @@ export default function Home() {
               <button
                 className="page-flip-corner flip-left"
                 onClick={() => setIsFlipped(false)}
-                aria-label="Flip to highlights"
+                aria-label="Flip back to highlights"
               >
                 <span className="corner-arrow">→</span>
               </button>
               <header className="brochure-header">
-                <p>Deep Dive</p>
-                <h2>Some Insights</h2>
-                <span className="header-note">Lesson stuff goes here eventually.</span>
+                <p>Featured Types</p>
+                <h2>Featured Types</h2>
+                <span className="header-note">Click any card to learn more</span>
               </header>
-              <div className="deep-dive-grid">
-                {deepDive.map(({ heading, body }) => (
-                  <article key={heading} className="deep-dive-card">
+              <div className="brochure-grid">
+                {teaTypes.map(({ heading, body, link }) => (
+                  <article 
+                    key={heading} 
+                    className="brochure-card"
+                    onClick={() => {
+                      window.scrollTo(0, 0);
+                      navigate(link);
+                    }}
+                    style={{ cursor: 'pointer' }}
+                  >
                     <h3>{heading}</h3>
                     <p>{body}</p>
-                    <span className="card-placeholder">Some Title</span>
+                    <span className="card-placeholder">Learn More →</span>
                   </article>
                 ))}
               </div>

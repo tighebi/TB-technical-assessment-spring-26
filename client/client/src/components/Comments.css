@@ -1,0 +1,123 @@
+.comments-container {
+  background: linear-gradient(145deg, #fff7e7, #e9d1a9);
+  border-radius: 20px;
+  padding: 2rem;
+  margin: 3rem 0;
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.comments-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--ink);
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.comments-form {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid rgba(201, 165, 112, 0.2);
+}
+
+.comments-form-row {
+  margin-bottom: 1rem;
+}
+
+.comments-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  background: rgba(255, 255, 255, 0.8);
+  color: var(--ink);
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+}
+
+.comments-input:focus {
+  outline: none;
+  border-color: rgba(201, 165, 112, 0.5);
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.comments-name-input {
+  max-width: 300px;
+}
+
+.comments-text-input {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.comments-submit {
+  padding: 0.75rem 2rem;
+  background: #4a5d3a;
+  color: var(--parchment);
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.comments-submit:hover {
+  background: #a66d2f;
+  transform: translateY(-2px);
+}
+
+.comments-submit:active {
+  transform: translateY(0);
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.comments-empty {
+  text-align: center;
+  color: rgba(44, 27, 16, 0.6);
+  font-style: italic;
+  padding: 2rem;
+}
+
+.comment-item {
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 12px;
+  padding: 1.25rem;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.comment-author {
+  font-weight: 600;
+  color: rgba(201, 165, 112, 0.9);
+  font-size: 0.95rem;
+}
+
+.comment-date {
+  font-size: 0.85rem;
+  color: rgba(44, 27, 16, 0.6);
+}
+
+.comment-text {
+  color: var(--ink);
+  line-height: 1.6;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
