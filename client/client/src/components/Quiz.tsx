@@ -37,10 +37,12 @@ interface QuizProps {
 export default function Quiz({ question, options, explanation }: QuizProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
+  // Track votes for each option: { 0: {count: 5, users: ['Alice', 'Bob']}, 1: {...}, ... }
+  // Initialize with 0 votes for each option when component loads
   const [votes, setVotes] = useState<Record<number, { count: number; users: string[] }>>(() => {
     const initial: Record<number, { count: number; users: string[] }> = {};
     options.forEach((_, index) => {
-      initial[index] = { count: 0, users: [] };
+      initial[index] = { count: 0, users: [] }; // Start with empty vote counts
     });
     return initial;
   });
@@ -48,12 +50,10 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
   const [userVote, setUserVote] = useState<number | null>(null);
 
   useEffect(() => {
-    // Load username from storage
     const storedUsername = getUsername();
     if (storedUsername) {
       setUserName(storedUsername);
     } else {
-      // If no username, prompt for it
       const name = prompt('Please enter your name to vote:') || 'Anonymous';
       if (name && name !== 'Anonymous') {
         setUsername(name);
@@ -63,28 +63,27 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
   }, []);
 
   const handleOptionClick = (index: number) => {
-    // If clicking the same option that's already selected, do nothing
     if (showResult && userVote === index) {
       return;
     }
 
+    // User is changing their vote: remove from old option, add to new option
     if (showResult && userVote !== null) {
-      // Change vote to a different option
       const oldVote = userVote;
+      // Update both old and new vote counts atomically
       setVotes(prev => ({
         ...prev,
         [oldVote]: {
-          count: prev[oldVote].count - 1,
-          users: prev[oldVote].users.filter(u => u !== userName)
+          count: prev[oldVote].count - 1, // Decrement old vote
+          users: prev[oldVote].users.filter(u => u !== userName) // Remove user from old list
         },
         [index]: {
-          count: prev[index].count + 1,
-          users: [...prev[index].users, userName]
+          count: prev[index].count + 1, // Increment new vote
+          users: [...prev[index].users, userName] // Add user to new list
         }
       }));
       setUserVote(index);
     } else {
-      // First vote - ensure we have a username
       if (!userName.trim()) {
         const name = prompt('Please enter your name to vote:') || 'Anonymous';
         if (name && name !== 'Anonymous') {
@@ -114,6 +113,7 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
     setShowResult(true);
   };
 
+  // Calculate total votes across all options for percentage calculations
   const totalVotes = Object.values(votes).reduce((sum, v) => sum + v.count, 0);
 
   return (
@@ -146,9 +146,11 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
         
         <Stack spacing={1.5}>
           {options.map((option, index) => {
-            const isSelected = selectedOption === index;
-            const isCorrect = option.isCorrect;
+            const isSelected = selectedOption === index; // Is this the option user clicked?
+            const isCorrect = option.isCorrect; // Is this the correct answer?
+            // Calculate percentage: (votes for this option / total votes) * 100
             const percentage = totalVotes > 0 ? (votes[index].count / totalVotes) * 100 : 0;
+            // Only show correct/incorrect indicator if user selected this option
             const showCorrect = showResult && isSelected;
 
             return (
@@ -181,7 +183,7 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: showResult ? 1 : 0 }}>
                   <Chip
-                    label={String.fromCharCode(65 + index)}
+                    label={String.fromCharCode(65 + index)} // Convert index to letter: 0->A, 1->B, 2->C, 3->D
                     size="small"
                     sx={{
                       background: 'rgba(201, 165, 112, 0.3)',
@@ -212,8 +214,8 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
                       </Typography>
                       {votes[index].users.length > 0 && (
                         <Typography variant="caption" sx={{ fontStyle: 'italic', color: 'rgba(44, 27, 16, 0.6)' }}>
-                          {votes[index].users.slice(0, 3).join(', ')}
-                          {votes[index].users.length > 3 && ` +${votes[index].users.length - 3} more`}
+                          {votes[index].users.slice(0, 3).join(', ')} {/* Show first 3 users */}
+                          {votes[index].users.length > 3 && ` +${votes[index].users.length - 3} more`} {/* Show count if more than 3 */}
                         </Typography>
                       )}
                     </Box>
@@ -225,11 +227,12 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
                         borderRadius: 4,
                         backgroundColor: 'rgba(0, 0, 0, 0.05)',
                         '& .MuiLinearProgress-bar': {
+                          // Color bar based on correctness: green if correct, red if incorrect, tan if not selected
                           background: showCorrect && isCorrect
-                            ? 'linear-gradient(90deg, #4a7c59, #6b9d7a)'
+                            ? 'linear-gradient(90deg, #4a7c59, #6b9d7a)' // Green for correct answer
                             : showCorrect && !isCorrect
-                              ? 'linear-gradient(90deg, #c94a4a, #d96a6a)'
-                              : 'linear-gradient(90deg, rgba(201, 165, 112, 0.6), rgba(201, 165, 112, 0.8))',
+                              ? 'linear-gradient(90deg, #c94a4a, #d96a6a)' // Red for incorrect answer
+                              : 'linear-gradient(90deg, rgba(201, 165, 112, 0.6), rgba(201, 165, 112, 0.8))', // Tan for unselected options
                           borderRadius: 4
                         }
                       }}

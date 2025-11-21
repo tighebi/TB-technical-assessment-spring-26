@@ -5,33 +5,8 @@
  */
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useLayoutEffect, useRef } from 'react';
-import {
-  Card,
-  CardContent,
-  Typography,
-  Chip,
-  Box,
-  Paper,
-  Accordion,
-  AccordionSummary,
-  AccordionDetails,
-  Divider,
-  Stack,
-  Fade,
-  Grow,
-  Grid,
-  Container
-} from '@mui/material';
-import {
-  LocationOn,
-  LocalFlorist,
-  Build,
-  Favorite,
-  Coffee,
-  Lightbulb,
-  ExpandMore,
-  ArrowBack
-} from '@mui/icons-material';
+import { Box } from '@mui/material';
+import { ArrowBack } from '@mui/icons-material';
 import Quiz from '../components/Quiz';
 import Comments from '../components/Comments';
 import TeaLayouts from './TeaLayouts';
@@ -322,36 +297,34 @@ export default function Tea() {
   const firstQuizRef = useRef<HTMLDivElement>(null);
   const secondQuizRef = useRef<HTMLDivElement>(null);
 
-  // Use useLayoutEffect to scroll before paint, ensuring no visible scroll
   useLayoutEffect(() => {
-    // Force scroll to top immediately, before any rendering - disable smooth scroll
     const originalScrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = 'auto';
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    // Restore original scroll behavior after a tick
     requestAnimationFrame(() => {
       document.documentElement.style.scrollBehavior = originalScrollBehavior;
     });
   }, [teaType]);
 
-  // Reset animation states when tea type changes
   useEffect(() => {
     setFirstQuizVisible(false);
     setSecondQuizVisible(false);
   }, [teaType]);
 
-  // Intersection Observer for quiz animations
   useEffect(() => {
+    // Intersection Observer watches when elements enter/leave viewport
+    // More efficient than constantly checking scroll position
     const observerOptions = {
-      threshold: 0.2,
-      rootMargin: '0px'
+      threshold: 0.2, // Trigger when 20% of element is visible
+      rootMargin: '0px' // No margin around viewport
     };
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
+          // Element is now visible - trigger slide-in animation
           if (entry.target === firstQuizRef.current) {
             setFirstQuizVisible(true);
           } else if (entry.target === secondQuizRef.current) {
@@ -361,6 +334,7 @@ export default function Tea() {
       });
     }, observerOptions);
 
+    // Start watching the quiz elements (only if refs are attached)
     if (firstQuizRef.current) {
       observer.observe(firstQuizRef.current);
     }
@@ -368,13 +342,13 @@ export default function Tea() {
       observer.observe(secondQuizRef.current);
     }
 
+    // Cleanup: stop observing when component unmounts or tea changes
     return () => {
       observer.disconnect();
     };
-  }, [tea]);
+  }, [tea]); // Re-run when tea data changes
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
-    // Create ripple at click position
     const x = e.clientX;
     const y = e.clientY;
     const id = Date.now();
@@ -397,7 +371,6 @@ export default function Tea() {
 
   return (
     <main className="home-scene" onClick={handleBackgroundClick}>
-      {/* Fixed back button - always visible */}
       <Box
         component="button"
         onClick={() => navigate('/')}
@@ -430,7 +403,6 @@ export default function Tea() {
         <ArrowBack /> Back to Main Menu
       </Box>
 
-      {/* Ripple effects */}
       {ripples.map(ripple => (
         <span
           key={ripple.id}

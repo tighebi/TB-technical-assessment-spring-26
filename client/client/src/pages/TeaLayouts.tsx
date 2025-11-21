@@ -48,8 +48,8 @@ interface TeaData {
 interface TeaLayoutsProps {
   tea: TeaData;
   teaType: string;
-  firstQuizRef: React.RefObject<HTMLDivElement>;
-  secondQuizRef: React.RefObject<HTMLDivElement>;
+  firstQuizRef: React.RefObject<HTMLDivElement | null>;
+  secondQuizRef: React.RefObject<HTMLDivElement | null>;
   firstQuizVisible: boolean;
   secondQuizVisible: boolean;
   QuizComponent: React.ComponentType<any>;
@@ -68,6 +68,11 @@ interface TeaTheme {
   accordionBg: string;       // Accordion background
 }
 
+/**
+ * Returns color theme configuration based on tea type
+ * Each tea has a unique color scheme that matches its characteristics
+ * (e.g., white tea = light colors, black tea = dark colors)
+ */
 const getTeaTheme = (teaType: string | undefined): TeaTheme => {
   switch (teaType) {
     case 'white':
@@ -150,7 +155,13 @@ const getTeaTheme = (teaType: string | undefined): TeaTheme => {
   }
 };
 
-// Unified layout component for all tea types
+/**
+ * Unified layout component for all tea types
+ * 
+ * This component receives tea data and renders it in a consistent layout structure.
+ * The theme colors change based on tea type, but the layout structure stays the same.
+ * Uses refs to trigger scroll-based animations for quizzes.
+ */
 export default function TeaLayouts({ 
   tea, 
   teaType, 

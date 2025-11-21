@@ -19,23 +19,37 @@ interface CommentsProps {
 }
 
 export default function Comments({ pageId }: CommentsProps) {
+  // Load comments from localStorage on initial mount
+  // Each tea page has its own comments: "comments-white", "comments-green", etc.
   const [comments, setComments] = useState<Comment[]>(() => {
     const saved = localStorage.getItem(`comments-${pageId}`);
+    // Parse JSON and convert timestamp strings back to Date objects
     return saved ? JSON.parse(saved).map((c: any) => ({
       ...c,
-      timestamp: new Date(c.timestamp)
+      timestamp: new Date(c.timestamp) // localStorage stores dates as strings
     })) : [];
   });
   const [newComment, setNewComment] = useState('');
   const [authorName, setAuthorName] = useState('');
 
   useEffect(() => {
-    // Load username from storage
     const storedUsername = getUsername();
     if (storedUsername) {
       setAuthorName(storedUsername);
     }
   }, []);
+
+  // Reload comments when pageId changes (e.g., navigating from /tea/white to /tea/green)
+  // Without this, component would keep showing old page's comments
+  useEffect(() => {
+    const saved = localStorage.getItem(`comments-${pageId}`);
+    const loadedComments = saved ? JSON.parse(saved).map((c: any) => ({
+      ...c,
+      timestamp: new Date(c.timestamp)
+    })) : [];
+    setComments(loadedComments);
+    setNewComment(''); // Clear input when switching pages
+  }, [pageId]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +59,16 @@ export default function Comments({ pageId }: CommentsProps) {
     }
 
     const comment: Comment = {
-      id: Date.now(),
+      id: Date.now(), // Use timestamp as unique ID
       author: authorName,
       text: newComment,
       timestamp: new Date()
     };
 
+    // Add new comment to front of array (newest first)
     const updatedComments = [comment, ...comments];
     setComments(updatedComments);
+    // Save to localStorage (must stringify because localStorage only stores strings)
     localStorage.setItem(`comments-${pageId}`, JSON.stringify(updatedComments));
     setNewComment('');
   };

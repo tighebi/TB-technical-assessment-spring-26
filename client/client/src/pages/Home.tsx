@@ -22,7 +22,6 @@ import {
   Edit,
   CheckCircle
 } from '@mui/icons-material';
-import api from '../api';
 import { getUsername, setUsername } from '../utils/username';
 import './Home.css';
 
@@ -81,103 +80,80 @@ export default function Home() {
   const [username, setUsernameState] = useState(() => getUsername());
   const [showUsernameInput, setShowUsernameInput] = useState(!username);
 
-  // Combine all teas and organize into pages (2 teas per page)
+  // Combine all 6 teas into single array for easier page management
+  // Normalize data structure: both arrays use 'title' and 'intro' properties
   const allTeas = [
-    ...teaHighlights.map(t => ({ ...t, intro: t.copy })),
-    ...teaTypes.map(t => ({ title: t.heading, intro: t.body, link: t.link }))
+    ...teaHighlights.map(t => ({ ...t, intro: t.copy })), // Front page teas (white, yellow, green)
+    ...teaTypes.map(t => ({ title: t.heading, intro: t.body, link: t.link })) // Back page teas (oolong, black, pu-erh)
   ];
 
-  // Current visible position (0, 1, or 2) - represents which page/spread we're viewing
   const [currentPosition, setCurrentPosition] = useState(0);
-  
-  // Track if a flip animation is in progress
   const [isFlipping, setIsFlipping] = useState(false);
   
-  // Get the content for a column at a given position and side
   const getColumnContent = (position: number, side: 'left' | 'right', isBack: boolean) => {
-    // If back face of the flipping column, show the next sequential column's content
+    // When a column flips, the back face shows the NEXT sequential column's content
+    // This creates the illusion of turning a real book page
     if (isBack && isFlipping && flippingColumn === side) {
       if (flippingColumn === 'right') {
-        // Right column flipping forward - back face shows the next sequential column
-        // Calculate the current column's tea index
-        const currentTeaIndex = position * 2 + 1; // Right column of current page
-        // Next sequential column is the left column of next page
-        const nextTeaIndex = currentTeaIndex + 1;
-        // Ensure we don't go beyond available teas
+        // Right column flipping forward: position 0 -> tea index 1, position 1 -> tea index 3, etc.
+        const currentTeaIndex = position * 2 + 1; // Formula: right column = odd indices (1, 3, 5)
+        const nextTeaIndex = currentTeaIndex + 1; // Next tea in sequence
         if (nextTeaIndex < allTeas.length) {
           return allTeas[nextTeaIndex];
         }
         return null;
       } else if (flippingColumn === 'left') {
-        // Left column flipping backward - back face shows the previous sequential column
-        // Calculate the current column's tea index
-        const currentTeaIndex = position * 2; // Left column of current page
-        // Previous sequential column is the right column of previous page
-        const prevTeaIndex = currentTeaIndex - 1;
-        // Ensure we don't go below 0
+        // Left column flipping backward: position 1 -> tea index 2, position 2 -> tea index 4, etc.
+        const currentTeaIndex = position * 2; // Formula: left column = even indices (0, 2, 4)
+        const prevTeaIndex = currentTeaIndex - 1; // Previous tea in sequence
         if (prevTeaIndex >= 0) {
           return allTeas[prevTeaIndex];
         }
         return null;
       }
     }
-    // Front face shows current page content
+    // Front face: show normal page content
+    // Left column uses even indices (0, 2, 4), right column uses odd indices (1, 3, 5)
     if (side === 'left') {
-      return allTeas[position * 2];
+      return allTeas[position * 2]; // Even: 0, 2, 4
     } else {
-      return allTeas[position * 2 + 1];
+      return allTeas[position * 2 + 1]; // Odd: 1, 3, 5
     }
   };
   
-  // Track which column is currently flipping
   const [flippingColumn, setFlippingColumn] = useState<'left' | 'right' | null>(null);
   
-  // Check if a column should be flipped (for animation state)
   const isColumnFlipped = (side: 'left' | 'right') => {
-    // Only show flipped state during animation and only for the column being flipped
     return isFlipping && flippingColumn === side;
   };
   
   const flipColumn = (side: 'left' | 'right') => {
-    // Prevent multiple flips at once
+    // Prevent multiple simultaneous flips
     if (isFlipping) return;
     
-    // Check if we can flip in this direction
-    if (side === 'right' && currentPosition >= 2) return; // Can't go forward from page 3
-    if (side === 'left' && currentPosition <= 0) return; // Can't go backward from page 1
+    // Boundary checks: can't go past first or last page
+    if (side === 'right' && currentPosition >= 2) return; // Already on page 3
+    if (side === 'left' && currentPosition <= 0) return; // Already on page 1
     
-    // Set which column is flipping
+    // Start animation
     setFlippingColumn(side);
-    
-    // Start flip animation
     setIsFlipping(true);
     
-    // After animation completes, change page and reset immediately (no extra animations)
+    // After animation completes (1.2s matches CSS animation duration)
     setTimeout(() => {
-      // Update position
       if (side === 'right') {
-        // Moving forward - right column flips, revealing next page
+        // Moving forward: increment position, but cap at 2 (page 3)
         setCurrentPosition(prev => Math.min(prev + 1, 2));
       } else {
-        // Moving backward - left column flips, revealing previous page
+        // Moving backward: decrement position, but don't go below 0 (page 1)
         setCurrentPosition(prev => Math.max(prev - 1, 0));
       }
       
-      // Reset flip state immediately (no extra delay or transitions)
+      // Reset animation state so column can flip again
       setIsFlipping(false);
       setFlippingColumn(null);
-    }, 1200); // Wait for full animation to complete
+    }, 1200);
   };
-
-  useEffect(() => {
-    api.get('/api/test')
-      .then(response => {
-        console.log('API connection successful:', response.data);
-      })
-      .catch(error => {
-        console.error('API connection failed:', error.message);
-      });
-  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -189,8 +165,9 @@ export default function Home() {
   }, []);
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
-    // Check if click is on flip button or arrow - don't create ripple
     const target = e.target as HTMLElement;
+    // Don't create ripples when clicking on page flip buttons
+    // Check both the clicked element and its parent elements (closest)
     if (
       target.closest('.page-flip-corner') ||
       target.closest('.corner-arrow') ||
@@ -201,29 +178,34 @@ export default function Home() {
       target.classList.contains('menu-page-flip') ||
       target.classList.contains('menu-flip-arrow')
     ) {
-      return; // Don't create ripple for flip button clicks
+      return;
     }
-
-    // Create multiple ripples at click position
+    // Get click coordinates relative to viewport
     const x = e.clientX;
     const y = e.clientY;
+    // Use timestamp as base ID to ensure uniqueness
     const baseId = Date.now();
     
-    // Create 2 ripples with staggered delays
+    // Create 2 ripples with staggered timing for layered effect
     for (let i = 0; i < 2; i++) {
-      const id = baseId + i;
+      const id = baseId + i; // Unique ID for each ripple
+      // Stagger each ripple by 250ms (0ms, 250ms)
       setTimeout(() => {
+        // Add ripple to state array (triggers CSS animation)
         setRipples(prev => [...prev, { x, y, id }]);
         
+        // Remove ripple after animation completes (2 seconds)
         setTimeout(() => {
           setRipples(prev => prev.filter(ripple => ripple.id !== id));
-        }, 2000); // Match the animation duration
-      }, i * 250); // Stagger each ripple by 250ms
+        }, 2000);
+      }, i * 250);
     }
   };
 
-  // Calculate opacity for fade-in effect
-  // Starts fading in when scrollY is around 400px, fully visible around 800px
+  // Fade-in calculation: opacity increases as user scrolls
+  // scrollY < 400: opacity = 0 (invisible)
+  // scrollY = 400-800: opacity = 0 to 1 (fading in)
+  // scrollY > 800: opacity = 1 (fully visible)
   const discoverOpacity = Math.min(1, Math.max(0, (scrollY - 400) / 400));
 
   const handleUsernameSubmit = (e: React.FormEvent) => {
@@ -243,16 +225,18 @@ export default function Home() {
     const brochureElement = document.getElementById('brochure');
     if (!brochureElement) return;
 
-    // Get precise positions
+    // Get current scroll position (try multiple methods for browser compatibility)
     const startPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+    // Get brochure's position relative to viewport (top of element to top of visible area)
     const elementRect = brochureElement.getBoundingClientRect();
+    // Calculate absolute position on page: current scroll + distance from viewport top
     const targetPosition = startPosition + elementRect.top;
+    // How many pixels we need to scroll
     const distance = targetPosition - startPosition;
     
-    // If already at target, do nothing
     if (Math.abs(distance) < 1) return;
 
-    const duration = 500; // 0.5 seconds
+    const duration = 500;
     let animationFrameId: number | null = null;
     let isAnimating = true;
 
@@ -263,28 +247,26 @@ export default function Home() {
         if (!isAnimating) return;
 
         const elapsed = timestamp - startTime;
+        // Calculate progress from 0 to 1 (clamped to prevent overshooting)
         let progress = Math.min(elapsed / duration, 1);
         
-        // Ease-in-out cubic for natural scrolling feel
-        // Starts slow, speeds up in middle, slows down at end
+        // Cubic easing function: creates smooth acceleration/deceleration curve
+        // First half: accelerates (4x^3), second half: decelerates (1 - (-2x+2)^3/2)
+        // This makes the scroll feel natural, not linear
         const easeInOutCubic = progress < 0.5
           ? 4 * progress * progress * progress
           : 1 - Math.pow(-2 * progress + 2, 3) / 2;
         
-        // Calculate current scroll position with easing
+        // Apply easing to distance: start + (total distance * eased progress)
         const currentPosition = startPosition + (distance * easeInOutCubic);
-        
-        // Scroll to calculated position
         window.scrollTo({
           top: currentPosition,
           behavior: 'auto' // Use 'auto' to prevent browser's smooth scroll from interfering
         });
 
-        // Continue animation if not complete
         if (progress < 1) {
           animationFrameId = requestAnimationFrame(animate);
         } else {
-          // Final scroll to ensure exact position
           window.scrollTo({
             top: targetPosition,
             behavior: 'auto'
@@ -298,18 +280,15 @@ export default function Home() {
       animationFrameId = requestAnimationFrame(animate);
     };
 
-    // Cancel any existing scroll animation
     if (animationFrameId !== null) {
       cancelAnimationFrame(animationFrameId);
     }
 
-    // Add slight delay before starting animation (150ms)
     setTimeout(startAnimation, 150);
   };
 
   return (
     <main className="home-scene" onClick={handleBackgroundClick}>
-      {/* Username input section */}
       <Dialog 
         open={showUsernameInput} 
         onClose={() => {}}
@@ -377,7 +356,6 @@ export default function Home() {
         </DialogContent>
       </Dialog>
       
-      {/* Display username if set */}
       {!showUsernameInput && username && (
         <Box
           sx={{
@@ -418,7 +396,6 @@ export default function Home() {
           </IconButton>
         </Box>
       )}
-      {/* Ripple effects */}
       {ripples.map(ripple => (
         <span
           key={ripple.id}
@@ -430,7 +407,6 @@ export default function Home() {
         />
       ))}
       
-      {/* Stand / marquee hero */}
       <section id="stand" className="stand-stage">
         <div className="stand-greeting">Welcome to Hack4Impact IdeaCon</div>
         <div className="stand-frame">
@@ -469,7 +445,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Discover Tea fade-in section */}
       <section 
         className="discover-section"
         style={{ 
@@ -492,12 +467,9 @@ export default function Home() {
         </Typography>
       </section>
 
-      {/* Menu-style Brochure with book-like column flipping */}
       <section id="brochure" className="brochure-zone">
         <div className="menu-book-container">
-          {/* Static outer border */}
           <div className="menu-book-border">
-            {/* Flip buttons - only show when navigation is possible */}
             {currentPosition > 0 && (
               <button
                 className="menu-page-flip menu-flip-left"
@@ -523,15 +495,11 @@ export default function Home() {
               </button>
             )}
 
-            {/* Book pages container - columns can flip independently */}
             <div className="menu-book-pages">
-              {/* Base layer - underneath content */}
               <div className="menu-page base-layer">
-                {/* Left underneath column - visible when right column flips left (going forward) OR left column flips right (going backward) */}
                 <div className={`menu-page-column underneath ${((isFlipping && flippingColumn === 'right') || (isFlipping && flippingColumn === 'left')) ? 'visible' : 'hidden'}`}>
                   {(() => {
                     if (flippingColumn === 'right') {
-                      // Going forward - show next page left column underneath
                       const nextPos = currentPosition + 1;
                       if (nextPos >= 3) return null;
                       const content = allTeas[nextPos * 2];
@@ -590,9 +558,8 @@ export default function Home() {
                           </Typography>
                         </Box>
                       </Box>
-                    );
+                      );
                     } else if (flippingColumn === 'left') {
-                      // Going backward - show previous page left column underneath
                       const prevPos = currentPosition - 1;
                       if (prevPos < 0) return null;
                       const content = allTeas[prevPos * 2];
@@ -657,11 +624,9 @@ export default function Home() {
                   })()}
                 </div>
 
-                {/* Right underneath column - visible when right column flips left (going forward) OR left column flips right (going backward) */}
                 <div className={`menu-page-column underneath ${((isFlipping && flippingColumn === 'right') || (isFlipping && flippingColumn === 'left')) ? 'visible' : 'hidden'}`}>
                   {(() => {
                     if (flippingColumn === 'right') {
-                      // Going forward - show next page right column underneath
                       const nextPos = currentPosition + 1;
                       if (nextPos >= 3) return null;
                       const content = allTeas[nextPos * 2 + 1];
@@ -722,7 +687,6 @@ export default function Home() {
                         </Box>
                       );
                     } else if (flippingColumn === 'left') {
-                      // Going backward - show previous page right column underneath
                       const prevPos = currentPosition - 1;
                       if (prevPos < 0) return null;
                       const content = allTeas[prevPos * 2 + 1];
@@ -788,11 +752,8 @@ export default function Home() {
                 </div>
               </div>
 
-              {/* Current visible page with flippable columns */}
               <div className="menu-page current-page">
-                {/* Left column - flippable */}
                 <div className={`menu-page-column flip-column ${isColumnFlipped('left') ? 'flipped' : ''}`}>
-                  {/* Front face */}
                   <div className="column-face column-front">
                     {(() => {
                       const content = getColumnContent(currentPosition, 'left', false);
@@ -939,9 +900,7 @@ export default function Home() {
                   </div>
                 </div>
 
-                {/* Right column - flippable */}
                 <div className={`menu-page-column flip-column ${isColumnFlipped('right') ? 'flipped' : ''}`}>
-                  {/* Front face */}
                   <div className="column-face column-front">
                     {(() => {
                       const content = getColumnContent(currentPosition, 'right', false);
