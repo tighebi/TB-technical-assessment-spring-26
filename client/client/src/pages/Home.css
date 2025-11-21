@@ -239,7 +239,7 @@
   text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
-/* ---------- Brochure + flip mechanism ---------- */
+/* ---------- Menu-style Brochure + book flip mechanism ---------- */
 .brochure-zone {
   padding: 6rem 0 3rem;
   display: flex;
@@ -249,16 +249,231 @@
   z-index: 2;
 }
 
-
-.brochure-container {
-  width: min(1200px, 95vw);
+.menu-book-container {
+  width: min(1000px, 90vw);
   position: relative;
-  height: 720px;
-  perspective: 1500px;
+  height: 700px;
+  perspective: 2000px;
   margin: 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
+}
+
+/* Static outer border that doesn't move */
+.menu-book-border {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(145deg, #d4a574, #b8945f);
+  border-radius: 20px;
+  padding: 20px;
+  box-shadow: 
+    0 30px 80px rgba(0, 0, 0, 0.3),
+    inset 0 2px 4px rgba(255, 255, 255, 0.2);
+  border: 3px solid rgba(139, 90, 43, 0.4);
+}
+
+/* Page flip buttons */
+.menu-page-flip {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border: none;
+  background: rgba(201, 165, 112, 0.2);
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(5px);
+}
+
+.menu-page-flip:hover {
+  background: rgba(201, 165, 112, 0.4);
+}
+
+.menu-flip-left {
+  left: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.menu-flip-right {
+  right: -40px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.menu-page-flip:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.menu-flip-left:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.menu-flip-right:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.menu-flip-arrow {
+  font-size: 2rem;
+  color: rgba(44, 27, 16, 0.8);
+  font-weight: bold;
+  pointer-events: none;
+}
+
+/* Pages container - columns can flip independently */
+.menu-book-pages {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  perspective: 2500px;
+}
+
+/* Base layer - shows underneath when columns flip */
+.menu-page.base-layer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: linear-gradient(145deg, #f5e3c8, #e9d1a9);
+  border-radius: 16px;
+  z-index: 1;
+  overflow: visible;
+}
+
+/* Current page layer - contains flippable columns */
+.menu-page.current-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  background: transparent;
+  border-radius: 16px;
+  z-index: 2;
+  overflow: visible;
+}
+
+/* Underneath columns (base layer) */
+.menu-page-column.underneath {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.25);
+  border-right: 1px solid rgba(201, 165, 112, 0.15);
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.menu-page-column.underneath.hidden {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.menu-page-column.underneath.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.menu-page-column.underneath:last-child {
+  border-right: none;
+}
+
+/* Flippable column container */
+.menu-page-column.flip-column {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  z-index: 3;
+  opacity: 1; /* Ensure fully opaque during flip */
+  transform: rotateY(0deg); /* Default state - no transition */
+}
+
+/* Only apply transition when actively flipping - ensures single smooth animation */
+.menu-page-column.flip-column.flipped {
+  transition: transform 1.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+
+/* Left column rotates from its right edge (center of the book) */
+.menu-page-column.flip-column:first-child {
+  transform-origin: right center;
+}
+
+/* Right column rotates from its left edge (center of the book) */
+.menu-page-column.flip-column:last-child {
+  transform-origin: left center;
+}
+
+/* Flipped state - left column flips left (opposite direction, rotateY negative) */
+.menu-page-column.flip-column:first-child.flipped {
+  transform: rotateY(-180deg);
+  z-index: 4; /* Above right column when flipping */
+}
+
+/* Flipped state - right column flips right (opposite direction, rotateY positive) */
+.menu-page-column.flip-column:last-child.flipped {
+  transform: rotateY(180deg);
+  z-index: 4; /* Above left column when flipping */
+}
+
+/* Column faces (front and back) */
+.column-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  background: linear-gradient(145deg, #f5e3c8, #e9d1a9);
+  border-right: 1px solid rgba(201, 165, 112, 0.2);
+  border-radius: 16px 0 0 16px;
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+  opacity: 1; /* Ensure fully opaque, not transparent */
+}
+
+/* Add shadow effect when column is flipped for book-like depth */
+.menu-page-column.flip-column.flipped {
+  filter: drop-shadow(-5px 0 10px rgba(0, 0, 0, 0.3));
+}
+
+.menu-page-column.flip-column:last-child.flipped {
+  filter: drop-shadow(5px 0 10px rgba(0, 0, 0, 0.3));
+}
+
+.column-face.column-front {
+  transform: rotateY(0deg);
+}
+
+.column-face.column-back {
+  transform: rotateY(180deg);
+}
+
+/* Right column faces have different border radius */
+.menu-page-column.flip-column:last-child .column-face {
+  border-radius: 0 16px 16px 0;
+  border-right: none;
+  border-left: 1px solid rgba(201, 165, 112, 0.2);
+}
+
+/* Ensure column faces don't show border on the inner edge */
+.menu-page-column.flip-column:first-child .column-face {
+  border-right: 1px solid rgba(201, 165, 112, 0.2);
+}
+
+.menu-page-column.flip-column:last-child .column-face {
+  border-left: 1px solid rgba(201, 165, 112, 0.2);
 }
 
 /* Page flip corner button - integrated into brochure */

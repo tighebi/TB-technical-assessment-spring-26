@@ -5,8 +5,36 @@
  */
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useLayoutEffect, useRef } from 'react';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Chip,
+  Box,
+  Paper,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
+  Divider,
+  Stack,
+  Fade,
+  Grow,
+  Grid,
+  Container
+} from '@mui/material';
+import {
+  LocationOn,
+  LocalFlorist,
+  Build,
+  Favorite,
+  Coffee,
+  Lightbulb,
+  ExpandMore,
+  ArrowBack
+} from '@mui/icons-material';
 import Quiz from '../components/Quiz';
 import Comments from '../components/Comments';
+import TeaLayouts from './TeaLayouts';
 import './Home.css';
 import './Tea.css';
 
@@ -283,10 +311,59 @@ const teaData: Record<string, TeaData> = {
   }
 };
 
+// Layout configurations for each tea type
+const getLayoutConfig = (teaType: string | undefined) => {
+  switch (teaType) {
+    case 'white':
+      return {
+        firstSection: { origin: 'full', flavor: 'none', processing: 'full' },
+        secondSection: { health: 'full', brewing: 'full', facts: 'full' },
+        style: 'delicate'
+      };
+    case 'yellow':
+      return {
+        firstSection: { origin: 'center', flavor: 'center', processing: 'center' },
+        secondSection: { health: 'center', brewing: 'center', facts: 'center' },
+        style: 'premium'
+      };
+    case 'green':
+      return {
+        firstSection: { origin: 'left', flavor: 'right', processing: 'full' },
+        secondSection: { health: 'left', brewing: 'right', facts: 'full' },
+        style: 'fresh'
+      };
+    case 'oolong':
+      return {
+        firstSection: { origin: 'left', flavor: 'right', processing: 'left' },
+        secondSection: { health: 'right', brewing: 'left', facts: 'right' },
+        style: 'balanced'
+      };
+    case 'black':
+      return {
+        firstSection: { origin: 'full', flavor: 'full', processing: 'full' },
+        secondSection: { health: 'full', brewing: 'full', facts: 'full' },
+        style: 'bold'
+      };
+    case 'pu-erh':
+      return {
+        firstSection: { origin: 'right', flavor: 'left', processing: 'right' },
+        secondSection: { health: 'left', brewing: 'right', facts: 'left' },
+        style: 'sophisticated'
+      };
+    default:
+      return {
+        firstSection: { origin: 'left', flavor: 'right', processing: 'full' },
+        secondSection: { health: 'left', brewing: 'right', facts: 'full' },
+        style: 'default'
+      };
+  }
+};
+
 export default function Tea() {
   const { teaType } = useParams<{ teaType: string }>();
   const navigate = useNavigate();
   const tea = teaType ? teaData[teaType] : null;
+  const layoutConfig = getLayoutConfig(teaType);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [firstQuizVisible, setFirstQuizVisible] = useState(false);
   const [secondQuizVisible, setSecondQuizVisible] = useState(false);
@@ -369,9 +446,10 @@ export default function Tea() {
   return (
     <main className="home-scene" onClick={handleBackgroundClick}>
       {/* Fixed back button - always visible */}
-      <button 
+      <Box
+        component="button"
         onClick={() => navigate('/')}
-        style={{
+        sx={{
           position: 'fixed',
           top: '1.5rem',
           left: '1.5rem',
@@ -389,21 +467,16 @@ export default function Tea() {
           transition: 'all 0.3s ease',
           display: 'flex',
           alignItems: 'center',
-          gap: '0.5rem'
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.background = '#3d4f2f';
-          e.currentTarget.style.transform = 'translateY(-2px)';
-          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.4)';
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.background = '#4a5d3a';
-          e.currentTarget.style.transform = 'translateY(0)';
-          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+          gap: '0.5rem',
+          '&:hover': {
+            background: '#3d4f2f',
+            transform: 'translateY(-2px)',
+            boxShadow: '0 6px 16px rgba(0, 0, 0, 0.4)'
+          }
         }}
       >
-        <span style={{ fontSize: '1.2rem' }}>←</span> Back to Main Menu
-      </button>
+        <ArrowBack /> Back to Main Menu
+      </Box>
 
       {/* Ripple effects */}
       {ripples.map(ripple => (
@@ -428,169 +501,16 @@ export default function Tea() {
       </section>
 
       <section className="brochure-zone" style={{ padding: '4rem 2rem', background: 'transparent' }}>
-        <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          {/* First Information Block */}
-          <div className="info-block" style={{ 
-            background: '#f5e3c8', 
-            borderRadius: '24px', 
-            padding: '3rem',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
-            marginBottom: '2rem'
-          }}>
-            <h2 style={{ 
-              fontFamily: "'Playfair Display', serif", 
-              fontSize: '2rem', 
-              marginBottom: '2rem',
-              color: 'var(--ink)',
-              borderBottom: '2px solid rgba(201, 165, 112, 0.3)',
-              paddingBottom: '1rem'
-            }}>
-              About {tea.name}
-            </h2>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div>
-                <h3 style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.4rem',
-                  marginBottom: '0.75rem',
-                  color: 'rgba(201, 165, 112, 0.9)'
-                }}>
-                  Origin
-                </h3>
-                <p style={{ color: 'var(--ink)', lineHeight: '1.8', margin: 0 }}>
-                  {tea.origin}
-                </p>
-              </div>
-
-              <div>
-                <h3 style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.4rem',
-                  marginBottom: '0.75rem',
-                  color: 'rgba(201, 165, 112, 0.9)'
-                }}>
-                  Flavor Profile
-                </h3>
-                <p style={{ color: 'var(--ink)', lineHeight: '1.8', margin: 0 }}>
-                  {tea.flavorProfile}
-                </p>
-              </div>
-
-              <div>
-                <h3 style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.4rem',
-                  marginBottom: '0.75rem',
-                  color: 'rgba(201, 165, 112, 0.9)'
-                }}>
-                  How It's Made
-                </h3>
-                <p style={{ color: 'var(--ink)', lineHeight: '1.8', margin: 0 }}>
-                  {tea.processing}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* First Quiz - slides from left */}
-          {tea.quizzes.length > 0 && (
-            <div 
-              ref={firstQuizRef}
-              className={`quiz-slide-left ${firstQuizVisible ? 'visible' : ''}`}
-            >
-              <Quiz
-                question={tea.quizzes[0].question}
-                options={tea.quizzes[0].options}
-                explanation={tea.quizzes[0].explanation}
-              />
-            </div>
-          )}
-
-          {/* Second Information Block */}
-          <div className="info-block" style={{ 
-            background: '#f5e3c8', 
-            borderRadius: '24px', 
-            padding: '3rem',
-            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
-            marginBottom: '2rem'
-          }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              <div>
-                <h3 style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.4rem',
-                  marginBottom: '0.75rem',
-                  color: 'rgba(201, 165, 112, 0.9)'
-                }}>
-                  Health Benefits
-                </h3>
-                <ul style={{ color: 'var(--ink)', lineHeight: '1.8', paddingLeft: '1.5rem', margin: 0 }}>
-                  {tea.healthBenefits.map((benefit, idx) => (
-                    <li key={idx}>{benefit}</li>
-                  ))}
-                </ul>
-              </div>
-
-              <div>
-                <h3 style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.4rem',
-                  marginBottom: '0.75rem',
-                  color: 'rgba(201, 165, 112, 0.9)'
-                }}>
-                  Brewing Tips
-                </h3>
-                <p style={{ color: 'var(--ink)', lineHeight: '1.8', margin: 0 }}>
-                  {tea.brewingTips}
-                </p>
-              </div>
-
-              <div>
-                <h3 style={{ 
-                  fontFamily: "'Playfair Display', serif",
-                  fontSize: '1.4rem',
-                  marginBottom: '0.75rem',
-                  color: 'rgba(201, 165, 112, 0.9)'
-                }}>
-                  Fun Facts
-                </h3>
-                <ul style={{ color: 'var(--ink)', lineHeight: '1.8', paddingLeft: '1.5rem', margin: 0 }}>
-                  {tea.funFacts.map((fact, idx) => (
-                    <li key={idx}>{fact}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          </div>
-
-          {/* Second Quiz - slides from right */}
-          {tea.quizzes.length > 1 && (
-            <div 
-              ref={secondQuizRef}
-              className={`quiz-slide-right ${secondQuizVisible ? 'visible' : ''}`}
-            >
-              <Quiz
-                question={tea.quizzes[1].question}
-                options={tea.quizzes[1].options}
-                explanation={tea.quizzes[1].explanation}
-              />
-            </div>
-          )}
-
-          {/* Additional quizzes if there are more than 2 */}
-          {tea.quizzes.length > 2 && tea.quizzes.slice(2).map((quiz, idx) => (
-            <Quiz
-              key={idx + 2}
-              question={quiz.question}
-              options={quiz.options}
-              explanation={quiz.explanation}
-            />
-          ))}
-
-          {/* Comments */}
-          <Comments pageId={teaType || 'unknown'} />
-        </div>
+        <TeaLayouts
+          tea={tea}
+          teaType={teaType || 'unknown'}
+          firstQuizRef={firstQuizRef}
+          secondQuizRef={secondQuizRef}
+          firstQuizVisible={firstQuizVisible}
+          secondQuizVisible={secondQuizVisible}
+          QuizComponent={Quiz}
+          CommentsComponent={Comments}
+        />
       </section>
     </main>
   );

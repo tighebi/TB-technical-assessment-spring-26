@@ -85,15 +85,6 @@ export default function Comments({ pageId }: CommentsProps) {
               cursor: 'default'
             } : {}}
           />
-          {getUsername() && (
-            <span style={{ 
-              fontSize: '0.75rem', 
-              color: 'rgba(44, 27, 16, 0.6)',
-              marginTop: '0.25rem'
-            }}>
-              (Set on home page)
-            </span>
-          )}
         </div>
         <div className="comments-form-row">
           <textarea
