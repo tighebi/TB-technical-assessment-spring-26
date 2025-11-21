@@ -330,6 +330,13 @@ export default function Tea() {
           } else if (entry.target === secondQuizRef.current) {
             setSecondQuizVisible(true);
           }
+        } else {
+          // Element is no longer visible - trigger slide-out animation
+          if (entry.target === firstQuizRef.current) {
+            setFirstQuizVisible(false);
+          } else if (entry.target === secondQuizRef.current) {
+            setSecondQuizVisible(false);
+          }
         }
       });
     }, observerOptions);
@@ -349,8 +356,8 @@ export default function Tea() {
   }, [tea]); // Re-run when tea data changes
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
-    const x = e.clientX;
-    const y = e.clientY;
+    const x = e.pageX;
+    const y = e.pageY;
     const id = Date.now();
     
     setRipples(prev => [...prev, { x, y, id }]);

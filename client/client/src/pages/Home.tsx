@@ -87,7 +87,11 @@ export default function Home() {
     ...teaTypes.map(t => ({ title: t.heading, intro: t.body, link: t.link })) // Back page teas (oolong, black, pu-erh)
   ];
 
-  const [currentPosition, setCurrentPosition] = useState(0);
+  // Initialize currentPosition from localStorage, default to 0
+  const [currentPosition, setCurrentPosition] = useState(() => {
+    const saved = localStorage.getItem('menu-page-position');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [isFlipping, setIsFlipping] = useState(false);
   
   const getColumnContent = (position: number, side: 'left' | 'right', isBack: boolean) => {
@@ -164,6 +168,11 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Save currentPosition to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('menu-page-position', currentPosition.toString());
+  }, [currentPosition]);
+
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
     // Don't create ripples when clicking on page flip buttons
@@ -180,9 +189,9 @@ export default function Home() {
     ) {
       return;
     }
-    // Get click coordinates relative to viewport
-    const x = e.clientX;
-    const y = e.clientY;
+    // Get click coordinates relative to document (not viewport)
+    const x = e.pageX;
+    const y = e.pageY;
     // Use timestamp as base ID to ensure uniqueness
     const baseId = Date.now();
     
