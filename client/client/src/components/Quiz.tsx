@@ -3,7 +3,8 @@
  * ----------
  * Interactive quiz component with live results
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getUsername, setUsername } from '../utils/username';
 import './Quiz.css';
 
 interface QuizOption {
@@ -30,6 +31,21 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
   const [userName, setUserName] = useState('');
   const [userVote, setUserVote] = useState<number | null>(null);
 
+  useEffect(() => {
+    // Load username from storage
+    const storedUsername = getUsername();
+    if (storedUsername) {
+      setUserName(storedUsername);
+    } else {
+      // If no username, prompt for it
+      const name = prompt('Please enter your name to vote:') || 'Anonymous';
+      if (name && name !== 'Anonymous') {
+        setUsername(name);
+      }
+      setUserName(name);
+    }
+  }, []);
+
   const handleOptionClick = (index: number) => {
     if (showResult && userVote !== null) {
       // Change vote
@@ -47,9 +63,12 @@ export default function Quiz({ question, options, explanation }: QuizProps) {
       }));
       setUserVote(index);
     } else {
-      // First vote
+      // First vote - ensure we have a username
       if (!userName.trim()) {
         const name = prompt('Please enter your name to vote:') || 'Anonymous';
+        if (name && name !== 'Anonymous') {
+          setUsername(name);
+        }
         setUserName(name);
         setVotes(prev => ({
           ...prev,

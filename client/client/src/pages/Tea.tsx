@@ -4,10 +4,11 @@
  * Individual tea type page with information, quizzes, and comments
  */
 import { useParams, useNavigate } from 'react-router-dom';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useLayoutEffect, useRef } from 'react';
 import Quiz from '../components/Quiz';
 import Comments from '../components/Comments';
 import './Home.css';
+import './Tea.css';
 
 interface Ripple {
   x: number;
@@ -287,10 +288,61 @@ export default function Tea() {
   const navigate = useNavigate();
   const tea = teaType ? teaData[teaType] : null;
   const [ripples, setRipples] = useState<Ripple[]>([]);
+  const [firstQuizVisible, setFirstQuizVisible] = useState(false);
+  const [secondQuizVisible, setSecondQuizVisible] = useState(false);
+  const firstQuizRef = useRef<HTMLDivElement>(null);
+  const secondQuizRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  // Use useLayoutEffect to scroll before paint, ensuring no visible scroll
+  useLayoutEffect(() => {
+    // Force scroll to top immediately, before any rendering - disable smooth scroll
+    const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+    document.documentElement.style.scrollBehavior = 'auto';
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    // Restore original scroll behavior after a tick
+    requestAnimationFrame(() => {
+      document.documentElement.style.scrollBehavior = originalScrollBehavior;
+    });
   }, [teaType]);
+
+  // Reset animation states when tea type changes
+  useEffect(() => {
+    setFirstQuizVisible(false);
+    setSecondQuizVisible(false);
+  }, [teaType]);
+
+  // Intersection Observer for quiz animations
+  useEffect(() => {
+    const observerOptions = {
+      threshold: 0.2,
+      rootMargin: '0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          if (entry.target === firstQuizRef.current) {
+            setFirstQuizVisible(true);
+          } else if (entry.target === secondQuizRef.current) {
+            setSecondQuizVisible(true);
+          }
+        }
+      });
+    }, observerOptions);
+
+    if (firstQuizRef.current) {
+      observer.observe(firstQuizRef.current);
+    }
+    if (secondQuizRef.current) {
+      observer.observe(secondQuizRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [tea]);
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
     // Create ripple at click position
@@ -316,6 +368,43 @@ export default function Tea() {
 
   return (
     <main className="home-scene" onClick={handleBackgroundClick}>
+      {/* Fixed back button - always visible */}
+      <button 
+        onClick={() => navigate('/')}
+        style={{
+          position: 'fixed',
+          top: '1.5rem',
+          left: '1.5rem',
+          padding: '0.75rem 1.5rem',
+          background: '#4a5d3a',
+          color: 'var(--parchment)',
+          border: '2px solid rgba(255, 255, 255, 0.2)',
+          borderRadius: '8px',
+          cursor: 'pointer',
+          zIndex: 1000,
+          fontSize: '1rem',
+          fontWeight: '600',
+          letterSpacing: '0.05em',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+          transition: 'all 0.3s ease',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '0.5rem'
+        }}
+        onMouseEnter={(e) => {
+          e.currentTarget.style.background = '#3d4f2f';
+          e.currentTarget.style.transform = 'translateY(-2px)';
+          e.currentTarget.style.boxShadow = '0 6px 16px rgba(0, 0, 0, 0.4)';
+        }}
+        onMouseLeave={(e) => {
+          e.currentTarget.style.background = '#4a5d3a';
+          e.currentTarget.style.transform = 'translateY(0)';
+          e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.3)';
+        }}
+      >
+        <span style={{ fontSize: '1.2rem' }}>←</span> Back to Main Menu
+      </button>
+
       {/* Ripple effects */}
       {ripples.map(ripple => (
         <span
@@ -331,23 +420,6 @@ export default function Tea() {
       <section className="stand-stage" style={{ minHeight: 'auto', padding: '4rem 2rem', background: 'transparent' }}>
         <div className="stand-frame" style={{ maxWidth: '900px', margin: '0 auto' }}>
           <div className="stand-board" style={{ minHeight: 'auto' }}>
-            <button 
-              onClick={() => navigate('/')}
-              style={{
-                position: 'absolute',
-                top: '1rem',
-                left: '1rem',
-                padding: '0.5rem 1rem',
-                background: '#4a5d3a',
-                color: 'var(--parchment)',
-                border: 'none',
-                borderRadius: '4px',
-                cursor: 'pointer',
-                zIndex: 10
-              }}
-            >
-              ← Back
-            </button>
             <p className="stand-pretitle">{tea.subtitle}</p>
             <h1 className="stand-title" style={{ fontSize: '2.5rem' }}>{tea.name}</h1>
             <p className="stand-question">Discover the unique characteristics of {tea.name.toLowerCase()}</p>
@@ -357,7 +429,8 @@ export default function Tea() {
 
       <section className="brochure-zone" style={{ padding: '4rem 2rem', background: 'transparent' }}>
         <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
-          <div style={{ 
+          {/* First Information Block */}
+          <div className="info-block" style={{ 
             background: '#f5e3c8', 
             borderRadius: '24px', 
             padding: '3rem',
@@ -417,7 +490,32 @@ export default function Tea() {
                   {tea.processing}
                 </p>
               </div>
+            </div>
+          </div>
 
+          {/* First Quiz - slides from left */}
+          {tea.quizzes.length > 0 && (
+            <div 
+              ref={firstQuizRef}
+              className={`quiz-slide-left ${firstQuizVisible ? 'visible' : ''}`}
+            >
+              <Quiz
+                question={tea.quizzes[0].question}
+                options={tea.quizzes[0].options}
+                explanation={tea.quizzes[0].explanation}
+              />
+            </div>
+          )}
+
+          {/* Second Information Block */}
+          <div className="info-block" style={{ 
+            background: '#f5e3c8', 
+            borderRadius: '24px', 
+            padding: '3rem',
+            boxShadow: '0 20px 60px rgba(0, 0, 0, 0.2)',
+            marginBottom: '2rem'
+          }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
               <div>
                 <h3 style={{ 
                   fontFamily: "'Playfair Display', serif",
@@ -466,10 +564,24 @@ export default function Tea() {
             </div>
           </div>
 
-          {/* Quizzes */}
-          {tea.quizzes.map((quiz, idx) => (
+          {/* Second Quiz - slides from right */}
+          {tea.quizzes.length > 1 && (
+            <div 
+              ref={secondQuizRef}
+              className={`quiz-slide-right ${secondQuizVisible ? 'visible' : ''}`}
+            >
+              <Quiz
+                question={tea.quizzes[1].question}
+                options={tea.quizzes[1].options}
+                explanation={tea.quizzes[1].explanation}
+              />
+            </div>
+          )}
+
+          {/* Additional quizzes if there are more than 2 */}
+          {tea.quizzes.length > 2 && tea.quizzes.slice(2).map((quiz, idx) => (
             <Quiz
-              key={idx}
+              key={idx + 2}
               question={quiz.question}
               options={quiz.options}
               explanation={quiz.explanation}

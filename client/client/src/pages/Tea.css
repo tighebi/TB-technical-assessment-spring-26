@@ -1,0 +1,37 @@
+/* Tea.css - Animations for tea page */
+
+/* Slide in from left animation */
+.quiz-slide-left {
+  opacity: 0;
+  transform: translateX(-100px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  margin: 2rem 0;
+}
+
+.quiz-slide-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Slide in from right animation */
+.quiz-slide-right {
+  opacity: 0;
+  transform: translateX(100px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+  margin: 2rem 0;
+}
+
+.quiz-slide-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Info block styling */
+.info-block {
+  transition: transform 0.3s ease;
+}
+
+.info-block:hover {
+  transform: translateY(-2px);
+}
+

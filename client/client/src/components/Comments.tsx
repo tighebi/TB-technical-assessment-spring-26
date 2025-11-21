@@ -3,7 +3,8 @@
  * ----------
  * Comment section component
  */
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { getUsername } from '../utils/username';
 import './Comments.css';
 
 interface Comment {
@@ -27,6 +28,14 @@ export default function Comments({ pageId }: CommentsProps) {
   });
   const [newComment, setNewComment] = useState('');
   const [authorName, setAuthorName] = useState('');
+
+  useEffect(() => {
+    // Load username from storage
+    const storedUsername = getUsername();
+    if (storedUsername) {
+      setAuthorName(storedUsername);
+    }
+  }, []);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,7 +79,21 @@ export default function Comments({ pageId }: CommentsProps) {
             value={authorName}
             onChange={(e) => setAuthorName(e.target.value)}
             className="comments-input comments-name-input"
+            readOnly={!!getUsername()}
+            style={getUsername() ? { 
+              backgroundColor: 'rgba(201, 165, 112, 0.1)',
+              cursor: 'default'
+            } : {}}
           />
+          {getUsername() && (
+            <span style={{ 
+              fontSize: '0.75rem', 
+              color: 'rgba(44, 27, 16, 0.6)',
+              marginTop: '0.25rem'
+            }}>
+              (Set on home page)
+            </span>
+          )}
         </div>
         <div className="comments-form-row">
           <textarea
