@@ -10,7 +10,6 @@ import { useNavigate } from 'react-router-dom';
 import {
   Typography,
   Box,
-  IconButton,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -18,11 +17,10 @@ import {
   Button
 } from '@mui/material';
 import {
-  Person,
-  Edit,
   CheckCircle
 } from '@mui/icons-material';
 import { getUsername, setUsername } from '../utils/username';
+import UsernameDisplay from '../components/UsernameDisplay';
 import './Home.css';
 
 /**
@@ -303,10 +301,20 @@ export default function Home() {
         onClose={() => {}}
         PaperProps={{
           sx: {
-            background: 'linear-gradient(145deg, #f5e3c8, #e9d1a9)',
+            background: `
+              repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.015) 2px,
+                rgba(0, 0, 0, 0.015) 4px
+              ),
+              radial-gradient(ellipse at 50% 50%, rgba(248, 231, 205, 0.12) 0%, transparent 70%),
+              linear-gradient(145deg, rgba(245, 227, 200, 0.98), rgba(233, 209, 169, 0.98))
+            `,
             borderRadius: '16px',
             padding: '1rem',
-            border: '2px solid rgba(201, 165, 112, 0.3)'
+            border: '2px solid rgba(201, 165, 112, 0.25)'
           }
         }}
       >
@@ -365,46 +373,7 @@ export default function Home() {
         </DialogContent>
       </Dialog>
       
-      {!showUsernameInput && username && (
-        <Box
-          sx={{
-            position: 'fixed',
-            top: '1.5rem',
-            right: '1.5rem',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 1,
-            background: 'rgba(255, 255, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            padding: '0.75rem 1.25rem',
-            borderRadius: '24px',
-            border: '1px solid rgba(255, 255, 255, 0.2)',
-            zIndex: 1000,
-            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
-          }}
-        >
-          <Person sx={{ color: 'var(--parchment)', fontSize: '1.5rem' }} />
-          <Typography sx={{ color: 'var(--parchment)', fontWeight: 600 }}>
-            {username}
-          </Typography>
-          <IconButton
-            size="small"
-            onClick={() => {
-              setShowUsernameInput(true);
-              setUsernameState('');
-            }}
-            aria-label="Change username"
-            sx={{
-              color: 'var(--parchment)',
-              '&:hover': {
-                background: 'rgba(255, 255, 255, 0.2)'
-              }
-            }}
-          >
-            <Edit fontSize="small" />
-          </IconButton>
-        </Box>
-      )}
+      <UsernameDisplay />
       {ripples.map(ripple => (
         <span
           key={ripple.id}

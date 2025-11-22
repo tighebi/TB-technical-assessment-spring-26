@@ -10,6 +10,7 @@ import { ArrowBack } from '@mui/icons-material';
 import Quiz from '../components/Quiz';
 import Comments from '../components/Comments';
 import TeaLayouts from './TeaLayouts';
+import UsernameDisplay from '../components/UsernameDisplay';
 import './Home.css';
 import './Tea.css';
 
@@ -409,6 +410,9 @@ export default function Tea() {
       >
         <ArrowBack /> Back to Main Menu
       </Box>
+
+      {/* Username Display in top right */}
+      <UsernameDisplay />
 
       {ripples.map(ripple => (
         <span

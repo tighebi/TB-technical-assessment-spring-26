@@ -1,0 +1,84 @@
+/**
+ * UsernameDisplay.css
+ * ----------
+ * High contrast, readable username display in top right corner
+ */
+
+.username-display {
+  position: fixed;
+  top: 1.5rem;
+  right: 1.5rem;
+  /* High contrast background for readability - dark green with strong opacity */
+  background: linear-gradient(135deg, rgba(74, 93, 58, 0.95), rgba(61, 79, 47, 0.95));
+  color: var(--parchment);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  z-index: 1000;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(201, 165, 112, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  font-size: 0.95rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(201, 165, 112, 0.3);
+  transition: all 0.3s ease;
+}
+
+.username-display:hover {
+  box-shadow: 
+    0 6px 16px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(201, 165, 112, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.username-text {
+  color: var(--parchment) !important;
+  font-weight: 600 !important;
+  white-space: nowrap;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.username-edit-btn {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.25rem !important;
+  cursor: pointer !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 6px !important;
+  transition: all 0.2s ease !important;
+  color: var(--parchment) !important;
+  min-width: auto !important;
+  width: auto !important;
+  height: auto !important;
+}
+
+.username-edit-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
+  transform: scale(1.1) !important;
+}
+
+.username-edit-btn svg {
+  color: var(--parchment) !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+}
+
+@media (max-width: 768px) {
+  .username-display {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.6rem 1rem;
+    font-size: 0.85rem;
+    gap: 0.5rem;
+  }
+
+  .username-display svg {
+    font-size: 1.25rem !important;
+  }
+}
+

@@ -1,7 +1,9 @@
 /* App.css originated from the Vite scaffold; custom tweaks keep overall shell styling centralized. */
 .app-shell {
   min-height: 100vh;
-  background: var(--grain-panel);
+  background: transparent;
   color: var(--ink);
+  position: relative;
+  z-index: 1;
 }
 

@@ -1,10 +1,28 @@
 .comments-container {
-  background: linear-gradient(145deg, #fff7e7, #e9d1a9);
+  /* Zen-inspired calming background with soft texture */
+  background: 
+    /* Very subtle organic texture */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 10px,
+      rgba(248, 231, 205, 0.03) 10px,
+      rgba(248, 231, 205, 0.03) 11px
+    ),
+    /* Gentle radial light for warmth */
+    radial-gradient(ellipse at 50% 50%, rgba(248, 231, 205, 0.12) 0%, transparent 70%),
+    /* Soft calming gradient */
+    linear-gradient(145deg, 
+      rgba(255, 247, 231, 0.98) 0%,
+      rgba(233, 209, 169, 0.98) 100%
+    );
   border-radius: 20px;
   padding: 2rem;
   margin: 3rem 0;
-  border: 2px solid rgba(0, 0, 0, 0.08);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  border: 2px solid rgba(201, 165, 112, 0.2);
+  box-shadow: 
+    0 8px 20px rgba(0, 0, 0, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
 }
 
 .comments-title {
@@ -88,10 +106,22 @@
 }
 
 .comment-item {
-  background: rgba(255, 255, 255, 0.6);
+  /* Calming zen background for comment items */
+  background: 
+    radial-gradient(ellipse at 50% 50%, rgba(248, 231, 205, 0.1) 0%, transparent 70%),
+    rgba(255, 255, 255, 0.65);
   border-radius: 12px;
   padding: 1.25rem;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(201, 165, 112, 0.15);
+  transition: all 0.3s ease;
+}
+
+.comment-item:hover {
+  background: 
+    radial-gradient(ellipse at 50% 50%, rgba(248, 231, 205, 0.15) 0%, transparent 70%),
+    rgba(255, 255, 255, 0.75);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
 .comment-header {
