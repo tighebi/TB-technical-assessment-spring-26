@@ -372,7 +372,15 @@ export default function Tea() {
     return (
       <div style={{ padding: '2rem', textAlign: 'center' }}>
         <h1>Tea Type Not Found</h1>
-        <button onClick={() => navigate('/')}>Return Home</button>
+        <button onClick={() => {
+          navigate('/#brochure');
+          setTimeout(() => {
+            const brochureElement = document.getElementById('brochure');
+            if (brochureElement) {
+              brochureElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }}>Return Home</button>
       </div>
     );
   }
@@ -381,7 +389,16 @@ export default function Tea() {
     <main className="home-scene" onClick={handleBackgroundClick}>
       <Box
         component="button"
-        onClick={() => navigate('/')}
+        onClick={() => {
+          navigate('/#brochure');
+          // Small delay to ensure navigation completes before scrolling
+          setTimeout(() => {
+            const brochureElement = document.getElementById('brochure');
+            if (brochureElement) {
+              brochureElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }, 100);
+        }}
         sx={{
           position: 'fixed',
           top: '1.5rem',

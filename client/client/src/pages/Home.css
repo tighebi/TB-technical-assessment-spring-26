@@ -11,8 +11,30 @@
   }
 }
 
+/* Prevent text selection on drag */
+.unselectable {
+  user-select: none;
+  -webkit-user-select: none; /* Safari / Chrome */
+  -moz-user-select: none;    /* Firefox */
+  -ms-user-select: none;     /* IE 10+ */
+}
+
+/* Allow text selection in input fields and text areas */
+input,
+textarea,
+[contenteditable="true"] {
+  user-select: text !important;
+  -webkit-user-select: text !important;
+  -moz-user-select: text !important;
+  -ms-user-select: text !important;
+}
+
 /* ---------- Page canvas / gradient - Zen-inspired calming background ---------- */
 .home-scene {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -135,6 +157,107 @@
   z-index: 2;
 }
 
+/* Dynamic Background: Floating tea leaves animation */
+.stand-stage::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* Gentle gradient overlay for warmth */
+  background: linear-gradient(
+    160deg,
+    rgba(248, 231, 205, 0.05) 0%,
+    transparent 40%,
+    rgba(201, 165, 112, 0.03) 100%
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Floating tea leaves container */
+.tea-leaves-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.tea-leaf {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  opacity: 0.15;
+  background: radial-gradient(ellipse, rgba(74, 93, 58, 0.4) 0%, transparent 70%);
+  border-radius: 50% 0 50% 0;
+  transform: rotate(45deg);
+  animation: floatTeaLeaf 20s infinite ease-in-out;
+}
+
+.tea-leaf:nth-child(1) {
+  left: 10%;
+  animation-delay: 0s;
+  animation-duration: 18s;
+}
+
+.tea-leaf:nth-child(2) {
+  left: 30%;
+  animation-delay: 2s;
+  animation-duration: 22s;
+}
+
+.tea-leaf:nth-child(3) {
+  left: 50%;
+  animation-delay: 4s;
+  animation-duration: 20s;
+}
+
+.tea-leaf:nth-child(4) {
+  left: 70%;
+  animation-delay: 1s;
+  animation-duration: 19s;
+}
+
+.tea-leaf:nth-child(5) {
+  left: 90%;
+  animation-delay: 3s;
+  animation-duration: 21s;
+}
+
+.tea-leaf:nth-child(6) {
+  left: 20%;
+  animation-delay: 5s;
+  animation-duration: 23s;
+}
+
+.tea-leaf:nth-child(7) {
+  left: 60%;
+  animation-delay: 1.5s;
+  animation-duration: 17s;
+}
+
+.tea-leaf:nth-child(8) {
+  left: 80%;
+  animation-delay: 3.5s;
+  animation-duration: 20s;
+}
+
+@keyframes floatTeaLeaf {
+  0% {
+    transform: translateY(100vh) rotate(45deg) translateX(0);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-20vh) rotate(225deg) translateX(30px);
+    opacity: 0;
+  }
+}
+
 .stand-stage::before {
   content: '';
   position: absolute;
@@ -155,21 +278,6 @@
   opacity: 0.6;
   pointer-events: none;
   mix-blend-mode: soft-light;
-}
-
-.stand-stage::after {
-  content: '';
-  position: absolute;
-  inset: 0;
-  /* Gentle gradient overlay for warmth */
-  background: linear-gradient(
-    160deg,
-    rgba(248, 231, 205, 0.05) 0%,
-    transparent 40%,
-    rgba(201, 165, 112, 0.03) 100%
-  );
-  opacity: 0.5;
-  pointer-events: none;
 }
 
 /* Elevated wood frame + topper */
@@ -208,7 +316,33 @@
 }
 
 .stand-board {
-  background: #f5e3c8;
+  /* Texture & Depth: Add subtle noise texture and paper grain overlay */
+  background: 
+    /* Noise texture using repeating patterns */
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.01) 1px,
+      rgba(0, 0, 0, 0.01) 2px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 1px,
+      rgba(0, 0, 0, 0.01) 1px,
+      rgba(0, 0, 0, 0.01) 2px
+    ),
+    /* Paper grain overlay */
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 8px,
+      rgba(201, 165, 112, 0.02) 8px,
+      rgba(201, 165, 112, 0.02) 9px
+    ),
+    /* Base beige color */
+    #f5e3c8;
   border-radius: 24px;
   padding: clamp(1.8rem, 4vw, 3rem);
   color: var(--ink);
@@ -222,13 +356,30 @@
   justify-content: center;
   gap: 1rem;
   min-height: clamp(320px, 55vh, 460px);
+  /* Skeuomorphic Elements: Realistic drop shadow for 3D grounding */
+  box-shadow: 
+    0 20px 60px rgba(0, 0, 0, 0.4),
+    0 10px 30px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  /* 3D Tilt Effect: Smooth transition for mouse tracking (only when not scrolling) */
+  will-change: transform;
+}
+
+/* Pause sway animation on hover to allow smooth tilt effect */
+.stand-board:hover {
+  animation-play-state: paused;
 }
 
 .stand-pretitle {
   text-transform: uppercase;
-  letter-spacing: 0.5em;
-  font-size: 0.75rem;
-  color: rgba(44, 27, 16, 0.55);
+  letter-spacing: 0.6em;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: rgba(44, 27, 16, 0.75);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  position: relative;
 }
 
 .stand-title {
@@ -236,6 +387,59 @@
   font-size: clamp(3rem, 7vw, 4.8rem);
   margin: 0;
   letter-spacing: 0.08em;
+  position: relative;
+}
+
+/* Steam Animation: Subtle looping steam rising from title */
+.stand-title::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 80px;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.3) 0%, transparent 70%),
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.2) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 20%, rgba(255, 255, 255, 0.2) 0%, transparent 60%);
+  opacity: 0.4;
+  animation: steamRise 4s ease-in-out infinite;
+  pointer-events: none;
+  filter: blur(8px);
+}
+
+.stand-title::after {
+  content: '';
+  position: absolute;
+  top: -50px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 100px;
+  background: 
+    radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.25) 0%, transparent 70%),
+    radial-gradient(ellipse at 40% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse at 60% 15%, rgba(255, 255, 255, 0.15) 0%, transparent 60%);
+  opacity: 0.3;
+  animation: steamRise 4s ease-in-out infinite 0.5s;
+  pointer-events: none;
+  filter: blur(10px);
+}
+
+@keyframes steamRise {
+  0% {
+    transform: translateX(-50%) translateY(0) scaleY(1);
+    opacity: 0.2;
+  }
+  50% {
+    transform: translateX(-50%) translateY(-10px) scaleY(1.1);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateX(-50%) translateY(-20px) scaleY(1.2);
+    opacity: 0;
+  }
 }
 
 .stand-question {
@@ -265,17 +469,26 @@
   font-size: 0.85rem;
   letter-spacing: 0.3em;
   text-transform: uppercase;
-  transition: transform 200ms ease, box-shadow 200ms ease;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 300ms ease, padding 300ms ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .scroll-cta span {
   font-size: 1.5rem;
   line-height: 1;
+  transition: transform 300ms cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
 }
 
 .scroll-cta:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) inset, 0 4px 12px rgba(0, 0, 0, 0.3);
+  padding: 0.85rem 1.7rem;
+}
+
+.scroll-cta:hover span {
   transform: translateY(4px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25) inset;
 }
 
 .stand-post {
@@ -285,7 +498,12 @@
   height: 120px;
   background: linear-gradient(180deg, #4a5d3a, #3d4f2f); /* Dark Green gradient */
   border-radius: 16px;
-  box-shadow: inset 4px 0 12px rgba(255, 255, 255, 0.08);
+  /* Skeuomorphic Elements: Add realistic shading for 3D effect */
+  box-shadow: 
+    inset 4px 0 12px rgba(255, 255, 255, 0.08),
+    inset -4px 0 12px rgba(0, 0, 0, 0.3),
+    0 8px 16px rgba(0, 0, 0, 0.4),
+    0 4px 8px rgba(0, 0, 0, 0.3);
 }
 
 .stand-post.left {

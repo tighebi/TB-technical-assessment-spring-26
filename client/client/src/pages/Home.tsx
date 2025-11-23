@@ -5,7 +5,7 @@
  * - Top section: Welcome to the Tea Education showcase
  * - Bottom section: Interactive brochure with tea highlights and types
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Typography,
@@ -77,6 +77,8 @@ export default function Home() {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [username, setUsernameState] = useState(() => getUsername());
   const [showUsernameInput, setShowUsernameInput] = useState(!username);
+  const standBoardRef = useRef<HTMLDivElement>(null);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   // Combine all 6 teas into single array for easier page management
   // Normalize data structure: both arrays use 'title' and 'intro' properties
@@ -166,6 +168,96 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  // Check if we should scroll to brochure section on mount (e.g., when navigating from Tea page)
+  useEffect(() => {
+    // Check if URL has #brochure hash
+    if (window.location.hash === '#brochure') {
+      // Small delay to ensure page is rendered
+      setTimeout(() => {
+        const brochureElement = document.getElementById('brochure');
+        if (brochureElement) {
+          const startPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
+          const elementRect = brochureElement.getBoundingClientRect();
+          const targetPosition = startPosition + elementRect.top;
+          
+          const duration = 800;
+          let animationFrameId: number | null = null;
+          let isAnimating = true;
+          const startTime = performance.now();
+
+          const animate = (timestamp: number) => {
+            if (!isAnimating) return;
+
+            const elapsed = timestamp - startTime;
+            let progress = Math.min(elapsed / duration, 1);
+            
+            const easeInOutCubic = progress < 0.5
+              ? 4 * progress * progress * progress
+              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
+            
+            const currentPosition = startPosition + ((targetPosition - startPosition) * easeInOutCubic);
+            window.scrollTo({
+              top: currentPosition,
+              behavior: 'auto'
+            });
+
+            if (progress < 1) {
+              animationFrameId = requestAnimationFrame(animate);
+            } else {
+              window.scrollTo({
+                top: targetPosition,
+                behavior: 'auto'
+              });
+              isAnimating = false;
+              // Clear hash after scrolling
+              window.history.replaceState(null, '', window.location.pathname);
+            }
+          };
+
+          animationFrameId = requestAnimationFrame(animate);
+        }
+      }, 100);
+    }
+  }, []);
+
+  // 3D Tilt Effect: Mouse tracking for premium tilt interaction
+  useEffect(() => {
+    const board = standBoardRef.current;
+    if (!board) return;
+
+    const handleMouseMove = (e: MouseEvent) => {
+      // Don't apply tilt when scrolling
+      if (isScrolling) return;
+      
+      const rect = board.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      
+      const centerX = rect.width / 2;
+      const centerY = rect.height / 2;
+      
+      const rotateX = ((y - centerY) / centerY) * -6; // Max 6 degrees (reduced for subtlety)
+      const rotateY = ((x - centerX) / centerX) * 6; // Max 6 degrees
+      
+      // Combine with base sway animation by using transform3d
+      board.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.01, 1.01, 1.01)`;
+    };
+
+    const handleMouseLeave = () => {
+      if (!isScrolling) {
+        board.style.transform = '';
+      }
+    };
+
+    board.addEventListener('mousemove', handleMouseMove);
+    board.addEventListener('mouseleave', handleMouseLeave);
+
+    return () => {
+      board.removeEventListener('mousemove', handleMouseMove);
+      board.removeEventListener('mouseleave', handleMouseLeave);
+    };
+  }, [isScrolling]);
+
   // Save currentPosition to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('menu-page-position', currentPosition.toString());
@@ -230,7 +322,15 @@ export default function Home() {
   const handleScrollToBrochure = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     const brochureElement = document.getElementById('brochure');
+    const standBoard = standBoardRef.current;
     if (!brochureElement) return;
+
+    // Smooth Transitions: Add lift effect to the signboard
+    setIsScrolling(true);
+    if (standBoard) {
+      standBoard.style.transition = 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)';
+      standBoard.style.transform = 'perspective(1000px) translateY(-30px) scale(0.95)';
+    }
 
     // Get current scroll position (try multiple methods for browser compatibility)
     const startPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
@@ -241,9 +341,16 @@ export default function Home() {
     // How many pixels we need to scroll
     const distance = targetPosition - startPosition;
     
-    if (Math.abs(distance) < 1) return;
+    if (Math.abs(distance) < 1) {
+      setIsScrolling(false);
+      if (standBoard) {
+        standBoard.style.transition = '';
+        standBoard.style.transform = '';
+      }
+      return;
+    }
 
-    const duration = 500;
+    const duration = 800; // Slightly longer for smoother feel
     let animationFrameId: number | null = null;
     let isAnimating = true;
 
@@ -280,6 +387,20 @@ export default function Home() {
           });
           isAnimating = false;
           animationFrameId = null;
+          
+          // Reset lift effect after scroll completes
+          setTimeout(() => {
+            setIsScrolling(false);
+            if (standBoard) {
+              standBoard.style.transition = 'transform 0.4s ease-out';
+              standBoard.style.transform = '';
+              setTimeout(() => {
+                if (standBoard) {
+                  standBoard.style.transition = '';
+                }
+              }, 400);
+            }
+          }, 200);
         }
       };
 
@@ -386,9 +507,20 @@ export default function Home() {
       ))}
       
       <section id="stand" className="stand-stage">
-        <div className="stand-greeting">Welcome to Hack4Impact IdeaCon</div>
+        {/* Dynamic Background: Floating tea leaves */}
+        <div className="tea-leaves-container">
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+          <div className="tea-leaf" />
+        </div>
+        <div className="stand-greeting unselectable">Welcome to Hack4Impact IdeaCon</div>
         <div className="stand-frame">
-          <div className="stand-board">
+          <div className="stand-board unselectable" ref={standBoardRef}>
             <p className="stand-pretitle">Showcase Spotlight</p>
             <h1 className="stand-title">The World of Tea</h1>
             <p className="stand-question">What makes each tea type unique?</p>
@@ -398,7 +530,7 @@ export default function Home() {
                 component="a"
                 href="#brochure"
                 onClick={handleScrollToBrochure}
-                className="scroll-cta"
+                className="scroll-cta unselectable"
                 sx={{
                   display: 'inline-flex',
                   alignItems: 'center',
@@ -424,7 +556,7 @@ export default function Home() {
       </section>
 
       <section 
-        className="discover-section"
+        className="discover-section unselectable"
         style={{ 
           opacity: discoverOpacity,
           transform: `translateY(${discoverOpacity < 1 ? 20 : 0}px)`,
