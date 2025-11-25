@@ -5,8 +5,8 @@
  */
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useLayoutEffect, useRef } from 'react';
-import { Box } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { Box, SwipeableDrawer, Button, List, ListItem, ListItemButton, ListItemText, Typography, Divider } from '@mui/material';
+import { ArrowBack, Menu } from '@mui/icons-material';
 import Quiz from '../components/Quiz';
 import Comments from '../components/Comments';
 import TeaLayouts from './TeaLayouts';
@@ -288,6 +288,19 @@ const teaData: Record<string, TeaData> = {
 };
 
 
+// List of all tea types for navigation
+const allTeaTypes = [
+  { key: 'white', name: 'White Tea', link: '/tea/white' },
+  { key: 'yellow', name: 'Yellow Tea', link: '/tea/yellow' },
+  { key: 'green', name: 'Green Tea', link: '/tea/green' },
+  { key: 'oolong', name: 'Oolong Tea', link: '/tea/oolong' },
+  { key: 'black', name: 'Black Tea', link: '/tea/black' },
+  { key: 'pu-erh', name: 'Pu-erh Tea', link: '/tea/pu-erh' },
+];
+
+// iOS detection for swipeable drawer
+const iOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
+
 export default function Tea() {
   const { teaType } = useParams<{ teaType: string }>();
   const navigate = useNavigate();
@@ -297,6 +310,7 @@ export default function Tea() {
   const [secondQuizVisible, setSecondQuizVisible] = useState(false);
   const firstQuizRef = useRef<HTMLDivElement>(null);
   const secondQuizRef = useRef<HTMLDivElement>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useLayoutEffect(() => {
     const originalScrollBehavior = document.documentElement.style.scrollBehavior;
@@ -385,6 +399,23 @@ export default function Tea() {
     );
   }
 
+  const toggleDrawer = (open: boolean) => (event: React.KeyboardEvent | React.MouseEvent) => {
+    if (
+      event &&
+      event.type === 'keydown' &&
+      ((event as React.KeyboardEvent).key === 'Tab' ||
+        (event as React.KeyboardEvent).key === 'Shift')
+    ) {
+      return;
+    }
+    setDrawerOpen(open);
+  };
+
+  const handleTeaClick = (link: string) => {
+    navigate(link);
+    setDrawerOpen(false);
+  };
+
   return (
     <main className="home-scene" onClick={handleBackgroundClick}>
       <Box
@@ -427,6 +458,188 @@ export default function Tea() {
       >
         <ArrowBack /> Back to Main Menu
       </Box>
+
+      {/* Open Menu Button - shows when drawer is closed */}
+      {!drawerOpen && (
+        <Button
+          onClick={toggleDrawer(true)}
+          sx={{
+            position: 'fixed',
+            bottom: '1rem',
+            left: '1rem',
+            padding: '0.75rem 1.5rem',
+            background: '#4a5d3a',
+            color: 'var(--parchment)',
+            border: '2px solid rgba(255, 255, 255, 0.2)',
+            borderRadius: '8px',
+            zIndex: 1000,
+            fontSize: '0.95rem',
+            fontWeight: '600',
+            letterSpacing: '0.05em',
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.3)',
+            transition: 'all 0.3s ease',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.5rem',
+            textTransform: 'none',
+            '&:hover': {
+              background: '#3d4f2f',
+              transform: 'translateY(-2px)',
+              boxShadow: '0 6px 16px rgba(0, 0, 0, 0.4)'
+            }
+          }}
+        >
+          <Menu /> Open Menu
+        </Button>
+      )}
+
+      {/* Swipeable Drawer */}
+      <SwipeableDrawer
+        anchor="bottom"
+        open={drawerOpen}
+        onClose={toggleDrawer(false)}
+        onOpen={toggleDrawer(true)}
+        disableBackdropTransition={!iOS}
+        disableDiscovery={iOS}
+        PaperProps={{
+          sx: {
+            width: { xs: 280, sm: 320 },
+            background: `
+              repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0, 0, 0, 0.015) 2px,
+                rgba(0, 0, 0, 0.015) 4px
+              ),
+              radial-gradient(ellipse at 50% 50%, rgba(248, 231, 205, 0.12) 0%, transparent 70%),
+              linear-gradient(145deg, rgba(245, 227, 200, 0.98), rgba(233, 209, 169, 0.98))
+            `,
+            borderTop: '2px solid rgba(201, 165, 112, 0.25)',
+            boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.3)',
+            maxHeight: '70vh',
+          }
+        }}
+      >
+        <Box
+          sx={{
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}
+          role="presentation"
+          onKeyDown={toggleDrawer(false)}
+        >
+          {/* Header */}
+          <Box
+            sx={{
+              padding: '1.5rem 1.5rem 1rem',
+              background: 'linear-gradient(180deg, rgba(74, 93, 58, 0.95), rgba(61, 79, 47, 0.95))',
+              color: 'var(--parchment)',
+              borderBottom: '2px solid rgba(201, 165, 112, 0.3)',
+              flexShrink: 0
+            }}
+          >
+            <Typography
+              variant="h5"
+              sx={{
+                fontFamily: "'Playfair Display', serif",
+                fontWeight: 700,
+                fontSize: '1.4rem',
+                mb: 0.5
+              }}
+            >
+              Tea Menu
+            </Typography>
+            <Typography
+              variant="body2"
+              sx={{
+                fontSize: '0.85rem',
+                opacity: 0.9,
+                letterSpacing: '0.05em'
+              }}
+            >
+              Select a tea to explore
+            </Typography>
+          </Box>
+
+          {/* Tea List */}
+          <Box
+            sx={{
+              flex: 1,
+              overflowY: 'auto',
+              padding: '1rem 0',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'flex-end'
+            }}
+          >
+            <List sx={{ padding: 0 }}>
+              {allTeaTypes.map((teaItem, index) => {
+                const isCurrentTea = teaItem.key === teaType;
+                return (
+                  <Box key={teaItem.key}>
+                    <ListItem
+                      disablePadding
+                      sx={{
+                        opacity: isCurrentTea ? 0.6 : 1,
+                        pointerEvents: isCurrentTea ? 'none' : 'auto',
+                      }}
+                    >
+                      <ListItemButton
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (!isCurrentTea) {
+                            handleTeaClick(teaItem.link);
+                          }
+                        }}
+                        disabled={isCurrentTea}
+                        sx={{
+                          padding: '1rem 1.5rem',
+                          '&:hover': {
+                            background: isCurrentTea 
+                              ? 'transparent' 
+                              : 'rgba(201, 165, 112, 0.2)',
+                          },
+                          '&.Mui-disabled': {
+                            opacity: 0.6
+                          }
+                        }}
+                      >
+                        <ListItemText
+                          primary={teaItem.name}
+                          primaryTypographyProps={{
+                            sx: {
+                              fontFamily: "'Playfair Display', serif",
+                              fontWeight: isCurrentTea ? 700 : 600,
+                              fontSize: '1.1rem',
+                              color: isCurrentTea 
+                                ? 'rgba(74, 93, 58, 0.8)' 
+                                : 'var(--ink)',
+                            }
+                          }}
+                          secondary={isCurrentTea ? 'Currently viewing' : undefined}
+                          secondaryTypographyProps={{
+                            sx: {
+                              fontSize: '0.75rem',
+                              color: 'rgba(74, 93, 58, 0.7)',
+                              fontStyle: 'italic'
+                            }
+                          }}
+                        />
+                      </ListItemButton>
+                    </ListItem>
+                    {index < allTeaTypes.length - 1 && (
+                      <Divider sx={{ margin: '0 1rem', borderColor: 'rgba(201, 165, 112, 0.2)' }} />
+                    )}
+                  </Box>
+                );
+              })}
+            </List>
+          </Box>
+        </Box>
+      </SwipeableDrawer>
 
       {/* Username Display in top right */}
       <UsernameDisplay />

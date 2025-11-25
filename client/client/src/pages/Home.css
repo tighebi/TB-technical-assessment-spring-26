@@ -285,9 +285,10 @@ textarea,
   font-size: 0.95rem;
   letter-spacing: 0.4em;
   text-transform: uppercase;
-  color: rgba(248, 231, 205, 0.75);
+  color: rgba(44, 27, 16, 0.9);
   margin-bottom: 2rem;
   z-index: 1;
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5);
 }
 
 .stand-frame {
@@ -529,10 +530,10 @@ textarea,
 .discover-title {
   font-family: 'Playfair Display', serif;
   font-size: clamp(2.5rem, 6vw, 4rem);
-  color: var(--parchment);
+  color: rgba(44, 27, 16, 0.95);
   margin: 0;
   letter-spacing: 0.1em;
-  text-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  text-shadow: 0 2px 4px rgba(255, 255, 255, 0.6);
 }
 
 /* ---------- Menu-style Brochure + book flip mechanism - Zen-inspired section ---------- */
