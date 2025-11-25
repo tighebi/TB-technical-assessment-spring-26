@@ -3,6 +3,7 @@
  * ----------
  * Unified layout for all tea types with tea-specific color themes
  */
+import type { ComponentType, RefObject } from 'react';
 import {
   Card,
   CardContent,
@@ -15,9 +16,9 @@ import {
   Divider,
   Stack,
   Fade,
-  Grid,
   Container
 } from '@mui/material';
+import Grid from '@mui/material/Grid';
 import {
   LocationOn,
   LocalFlorist,
@@ -48,12 +49,12 @@ interface TeaData {
 interface TeaLayoutsProps {
   tea: TeaData;
   teaType: string;
-  firstQuizRef: React.RefObject<HTMLDivElement | null>;
-  secondQuizRef: React.RefObject<HTMLDivElement | null>;
+  firstQuizRef: RefObject<HTMLDivElement | null>;
+  secondQuizRef: RefObject<HTMLDivElement | null>;
   firstQuizVisible: boolean;
   secondQuizVisible: boolean;
-  QuizComponent: React.ComponentType<any>;
-  CommentsComponent: React.ComponentType<any>;
+  QuizComponent: ComponentType<any>;
+  CommentsComponent: ComponentType<any>;
 }
 
 // Color theme configurations based on tea type
@@ -178,7 +179,7 @@ export default function TeaLayouts({
     <Container maxWidth="lg" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
       {/* First Section: Origin and Flavor side by side */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Fade in={true} timeout={600}>
             <Card 
               sx={{ 
@@ -217,7 +218,7 @@ export default function TeaLayouts({
             </Card>
           </Fade>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Fade in={true} timeout={800}>
             <Card 
               sx={{ 
@@ -315,7 +316,7 @@ export default function TeaLayouts({
 
       {/* Second Section: Health Benefits and Brewing side by side */}
       <Grid container spacing={3} sx={{ mb: 3, mt: 3 }}>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Fade in={true} timeout={1200}>
             <Card 
               sx={{ 
@@ -372,7 +373,7 @@ export default function TeaLayouts({
             </Card>
           </Fade>
         </Grid>
-        <Grid item xs={12} md={6}>
+        <Grid size={{ xs: 12, md: 6 }}>
           <Fade in={true} timeout={1400}>
             <Card 
               sx={{ 
