@@ -32,85 +32,125 @@ interface QuizProps {
   question: string;
   options: QuizOption[];
   explanation?: string;
+  questionId: string; // Unique identifier for this question (e.g., "white-q1", "green-q2")
 }
 
-export default function Quiz({ question, options, explanation }: QuizProps) {
+export default function Quiz({ question, options, explanation, questionId }: QuizProps) {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   // Track votes for each option: { 0: {count: 5, users: ['Alice', 'Bob']}, 1: {...}, ... }
-  // Initialize with 0 votes for each option when component loads
   const [votes, setVotes] = useState<Record<number, { count: number; users: string[] }>>(() => {
     const initial: Record<number, { count: number; users: string[] }> = {};
     options.forEach((_, index) => {
-      initial[index] = { count: 0, users: [] }; // Start with empty vote counts
+      initial[index] = { count: 0, users: [] };
     });
     return initial;
   });
   const [userName, setUserName] = useState('');
   const [userVote, setUserVote] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedUsername = getUsername();
     if (storedUsername) {
       setUserName(storedUsername);
-    } else {
+    }
+  }, []);
+
+  // Fetch votes from API when component mounts or questionId changes
+  useEffect(() => {
+    const fetchVotes = async () => {
+      try {
+        setLoading(true);
+        // Replace 'http://localhost:5000' with your deployed URL later
+        const response = await fetch(`http://localhost:5000/api/votes/${questionId}`);
+        if (response.ok) {
+          const voteData = await response.json();
+          // Aggregate votes by option
+          const aggregated: Record<number, { count: number; users: string[] }> = {};
+          options.forEach((_, index) => {
+            const optionLetter = String.fromCharCode(65 + index); // A, B, C, D
+            const optionVotes = voteData.filter((v: any) => v.selectedOption === optionLetter);
+            aggregated[index] = {
+              count: optionVotes.length,
+              users: optionVotes.map((v: any) => v.userName)
+            };
+          });
+          setVotes(aggregated);
+        }
+      } catch (err) {
+        console.error("Error fetching votes:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVotes();
+  }, [questionId, options.length]);
+
+  const handleOptionClick = async (index: number) => {
+    if (showResult && userVote === index) {
+      return;
+    }
+
+    // Ensure user has a name
+    let currentUserName = userName;
+    if (!currentUserName.trim()) {
       const name = prompt('Please enter your name to vote:') || 'Anonymous';
       if (name && name !== 'Anonymous') {
         setUsername(name);
       }
       setUserName(name);
-    }
-  }, []);
-
-  const handleOptionClick = (index: number) => {
-    if (showResult && userVote === index) {
-      return;
+      currentUserName = name;
     }
 
-    // User is changing their vote: remove from old option, add to new option
-    if (showResult && userVote !== null) {
-      const oldVote = userVote;
-      // Update both old and new vote counts atomically
-      setVotes(prev => ({
-        ...prev,
-        [oldVote]: {
-          count: prev[oldVote].count - 1, // Decrement old vote
-          users: prev[oldVote].users.filter(u => u !== userName) // Remove user from old list
-        },
-        [index]: {
-          count: prev[index].count + 1, // Increment new vote
-          users: [...prev[index].users, userName] // Add user to new list
-        }
-      }));
-      setUserVote(index);
-    } else {
-      if (!userName.trim()) {
-        const name = prompt('Please enter your name to vote:') || 'Anonymous';
-        if (name && name !== 'Anonymous') {
-          setUsername(name);
-        }
-        setUserName(name);
-        setVotes(prev => ({
-          ...prev,
-          [index]: {
-            count: prev[index].count + 1,
-            users: [...prev[index].users, name]
+    const optionLetter = String.fromCharCode(65 + index); // Convert index to letter: 0->A, 1->B, etc.
+
+    try {
+      // Post vote to API
+      // Replace 'http://localhost:5000' with your deployed URL later
+      const response = await fetch('http://localhost:5000/api/votes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userName: currentUserName,
+          questionId: questionId,
+          selectedOption: optionLetter
+        })
+      });
+
+      if (response.ok) {
+        // If user had a previous vote, we need to handle it
+        // For simplicity, we'll just add the new vote and refetch all votes
+        // (In a production app, you might want to update/delete the old vote)
+        const fetchVotes = async () => {
+          const voteResponse = await fetch(`http://localhost:5000/api/votes/${questionId}`);
+          if (voteResponse.ok) {
+            const voteData = await voteResponse.json();
+            const aggregated: Record<number, { count: number; users: string[] }> = {};
+            options.forEach((_, idx) => {
+              const optLetter = String.fromCharCode(65 + idx);
+              const optionVotes = voteData.filter((v: any) => v.selectedOption === optLetter);
+              aggregated[idx] = {
+                count: optionVotes.length,
+                users: optionVotes.map((v: any) => v.userName)
+              };
+            });
+            setVotes(aggregated);
           }
-        }));
+        };
+        await fetchVotes();
         setUserVote(index);
+        setSelectedOption(index);
+        setShowResult(true);
       } else {
-        setVotes(prev => ({
-          ...prev,
-          [index]: {
-            count: prev[index].count + 1,
-            users: [...prev[index].users, userName]
-          }
-        }));
-        setUserVote(index);
+        console.error("Error posting vote:", await response.text());
+        alert('Failed to submit vote. Please try again.');
       }
+    } catch (err) {
+      console.error("Error posting vote:", err);
+      alert('Failed to submit vote. Please try again.');
     }
-    setSelectedOption(index);
-    setShowResult(true);
   };
 
   // Calculate total votes across all options for percentage calculations

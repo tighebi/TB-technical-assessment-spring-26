@@ -19,18 +19,10 @@ interface CommentsProps {
 }
 
 export default function Comments({ pageId }: CommentsProps) {
-  // Load comments from localStorage on initial mount
-  // Each tea page has its own comments: "comments-white", "comments-green", etc.
-  const [comments, setComments] = useState<Comment[]>(() => {
-    const saved = localStorage.getItem(`comments-${pageId}`);
-    // Parse JSON and convert timestamp strings back to Date objects
-    return saved ? JSON.parse(saved).map((c: any) => ({
-      ...c,
-      timestamp: new Date(c.timestamp) // localStorage stores dates as strings
-    })) : [];
-  });
+  const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [authorName, setAuthorName] = useState('');
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const storedUsername = getUsername();
@@ -39,38 +31,73 @@ export default function Comments({ pageId }: CommentsProps) {
     }
   }, []);
 
-  // Reload comments when pageId changes (e.g., navigating from /tea/white to /tea/green)
-  // Without this, component would keep showing old page's comments
+  // Fetch comments from API when pageId changes
   useEffect(() => {
-    const saved = localStorage.getItem(`comments-${pageId}`);
-    const loadedComments = saved ? JSON.parse(saved).map((c: any) => ({
-      ...c,
-      timestamp: new Date(c.timestamp)
-    })) : [];
-    setComments(loadedComments);
+    const fetchComments = async () => {
+      try {
+        setLoading(true);
+        // Replace 'http://localhost:5000' with your deployed URL later
+        const response = await fetch(`http://localhost:5000/api/comments/${pageId}`);
+        if (response.ok) {
+          const data = await response.json();
+          // Map API response to Comment interface
+          const mappedComments: Comment[] = data.map((c: any) => ({
+            id: c._id || Date.now(),
+            author: c.userName,
+            text: c.text,
+            timestamp: new Date(c.timestamp)
+          }));
+          setComments(mappedComments);
+        }
+      } catch (err) {
+        console.error("Error fetching comments:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchComments();
     setNewComment(''); // Clear input when switching pages
   }, [pageId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newComment.trim() || !authorName.trim()) {
       alert('Please enter both your name and a comment.');
       return;
     }
 
-    const comment: Comment = {
-      id: Date.now(), // Use timestamp as unique ID
-      author: authorName,
-      text: newComment,
-      timestamp: new Date()
-    };
+    try {
+      // Replace 'http://localhost:5000' with your deployed URL later
+      const response = await fetch('http://localhost:5000/api/comments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ 
+          userName: authorName, 
+          teaType: pageId, 
+          text: newComment 
+        })
+      });
 
-    // Add new comment to front of array (newest first)
-    const updatedComments = [comment, ...comments];
-    setComments(updatedComments);
-    // Save to localStorage (must stringify because localStorage only stores strings)
-    localStorage.setItem(`comments-${pageId}`, JSON.stringify(updatedComments));
-    setNewComment('');
+      if (response.ok) {
+        const savedComment = await response.json();
+        // Add new comment to front of array (newest first)
+        const newCommentObj: Comment = {
+          id: savedComment._id || Date.now(),
+          author: savedComment.userName,
+          text: savedComment.text,
+          timestamp: new Date(savedComment.timestamp)
+        };
+        setComments([newCommentObj, ...comments]);
+        setNewComment('');
+      } else {
+        console.error("Error posting comment:", await response.text());
+        alert('Failed to post comment. Please try again.');
+      }
+    } catch (err) {
+      console.error("Error posting comment:", err);
+      alert('Failed to post comment. Please try again.');
+    }
   };
 
   const formatDate = (date: Date) => {
@@ -117,7 +144,9 @@ export default function Comments({ pageId }: CommentsProps) {
       </form>
 
       <div className="comments-list">
-        {comments.length === 0 ? (
+        {loading ? (
+          <p className="comments-empty">Loading comments...</p>
+        ) : comments.length === 0 ? (
           <p className="comments-empty">No comments yet. Be the first to share your thoughts!</p>
         ) : (
           comments.map((comment) => (

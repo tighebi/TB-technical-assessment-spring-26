@@ -308,6 +308,7 @@ export default function TeaLayouts({
             question={tea.quizzes[0].question}
             options={tea.quizzes[0].options}
             explanation={tea.quizzes[0].explanation}
+            questionId={`${teaType}-q1`}
           />
         </div>
       )}
@@ -422,6 +423,7 @@ export default function TeaLayouts({
             question={tea.quizzes[1].question}
             options={tea.quizzes[1].options}
             explanation={tea.quizzes[1].explanation}
+            questionId={`${teaType}-q2`}
           />
         </div>
       )}
