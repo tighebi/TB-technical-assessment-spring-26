@@ -10,7 +10,14 @@ const commentRoutes = require('./routes/r_comments');
 const voteRoutes = require('./routes/r_votes');
 
 // Middleware
-app.use(cors()); // Allow all cross-origin requests (for now)
+app.use(cors({
+  origin: [
+      "http://localhost:5173",
+      "https://h4i-spring-26-tea-backend.onrender.com", // (Optional, but good for self-checks)
+      "https://YOUR-NEW-VERCEL-LINK.vercel.app" // 👈 PASTE VERCEL LINK HERE
+  ],
+  credentials: true
+}));
 app.use(express.json()); // Allow server to parse JSON bodies
 
 app.use('/api/comments', commentRoutes);
