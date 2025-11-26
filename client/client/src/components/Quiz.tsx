@@ -21,6 +21,7 @@ import {
   Quiz as QuizIcon
 } from '@mui/icons-material';
 import { getUsername, setUsername } from '../utils/username';
+import API_BASE from '../utils/api';
 import './Quiz.css';
 
 interface QuizOption {
@@ -48,8 +49,7 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
   });
   const [userName, setUserName] = useState('');
   const [userVote, setUserVote] = useState<number | null>(null);
-  const [loading, setLoading] = useState(false);
-
+  const [, setLoading] = useState(false);
   useEffect(() => {
     const storedUsername = getUsername();
     if (storedUsername) {
@@ -62,8 +62,7 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
     const fetchVotes = async () => {
       try {
         setLoading(true);
-        // Replace 'http://localhost:5000' with your deployed URL later
-        const response = await fetch(`http://localhost:5000/api/votes/${questionId}`);
+        const response = await fetch(`${API_BASE}/api/votes/${questionId}`);
         if (response.ok) {
           const voteData = await response.json();
           // Aggregate votes by option
@@ -108,8 +107,7 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
 
     try {
       // Post vote to API
-      // Replace 'http://localhost:5000' with your deployed URL later
-      const response = await fetch('http://localhost:5000/api/votes', {
+      const response = await fetch(`${API_BASE}/api/votes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -124,7 +122,7 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
         // For simplicity, we'll just add the new vote and refetch all votes
         // (In a production app, you might want to update/delete the old vote)
         const fetchVotes = async () => {
-          const voteResponse = await fetch(`http://localhost:5000/api/votes/${questionId}`);
+          const voteResponse = await fetch(`${API_BASE}/api/votes/${questionId}`);
           if (voteResponse.ok) {
             const voteData = await voteResponse.json();
             const aggregated: Record<number, { count: number; users: string[] }> = {};

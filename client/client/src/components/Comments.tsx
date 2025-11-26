@@ -5,6 +5,7 @@
  */
 import { useState, useEffect } from 'react';
 import { getUsername } from '../utils/username';
+import API_BASE from '../utils/api';
 import './Comments.css';
 
 interface Comment {
@@ -36,8 +37,7 @@ export default function Comments({ pageId }: CommentsProps) {
     const fetchComments = async () => {
       try {
         setLoading(true);
-        // Replace 'http://localhost:5000' with your deployed URL later
-        const response = await fetch(`http://localhost:5000/api/comments/${pageId}`);
+        const response = await fetch(`${API_BASE}/api/comments/${pageId}`);
         if (response.ok) {
           const data = await response.json();
           // Map API response to Comment interface
@@ -68,8 +68,7 @@ export default function Comments({ pageId }: CommentsProps) {
     }
 
     try {
-      // Replace 'http://localhost:5000' with your deployed URL later
-      const response = await fetch('http://localhost:5000/api/comments', {
+      const response = await fetch(`${API_BASE}/api/comments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 

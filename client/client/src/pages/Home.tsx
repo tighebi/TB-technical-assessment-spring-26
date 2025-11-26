@@ -181,7 +181,8 @@ export default function Home() {
           const targetPosition = startPosition + elementRect.top;
           
           const duration = 800;
-          let animationFrameId: number | null = null;
+          // @ts-expect-error - animationFrameId is used for cleanup but TypeScript doesn't detect it
+          let _animationFrameId: number | null = null;
           let isAnimating = true;
           const startTime = performance.now();
 
@@ -202,7 +203,7 @@ export default function Home() {
             });
 
             if (progress < 1) {
-              animationFrameId = requestAnimationFrame(animate);
+              _animationFrameId = requestAnimationFrame(animate);
             } else {
               window.scrollTo({
                 top: targetPosition,
@@ -214,7 +215,7 @@ export default function Home() {
             }
           };
 
-          animationFrameId = requestAnimationFrame(animate);
+          _animationFrameId = requestAnimationFrame(animate);
         }
       }, 100);
     }
@@ -351,7 +352,7 @@ export default function Home() {
     }
 
     const duration = 800; // Slightly longer for smoother feel
-    let animationFrameId: number | null = null;
+    let _animationFrameId: number | null = null;
     let isAnimating = true;
 
     const startAnimation = () => {
@@ -379,14 +380,14 @@ export default function Home() {
         });
 
         if (progress < 1) {
-          animationFrameId = requestAnimationFrame(animate);
+          _animationFrameId = requestAnimationFrame(animate);
         } else {
           window.scrollTo({
             top: targetPosition,
             behavior: 'auto'
           });
           isAnimating = false;
-          animationFrameId = null;
+          _animationFrameId = null;
           
           // Reset lift effect after scroll completes
           setTimeout(() => {
@@ -405,11 +406,11 @@ export default function Home() {
       };
 
       // Start animation
-      animationFrameId = requestAnimationFrame(animate);
+      _animationFrameId = requestAnimationFrame(animate);
     };
 
-    if (animationFrameId !== null) {
-      cancelAnimationFrame(animationFrameId);
+    if (_animationFrameId !== null) {
+      cancelAnimationFrame(_animationFrameId);
     }
 
     setTimeout(startAnimation, 150);
