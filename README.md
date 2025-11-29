@@ -23,6 +23,111 @@ You should prompt the user for their name the first time they interact with some
 
 **If you don't finish everything on time, just submit what you have. Partial submissions will still be considered. Please try to give yourself adequate time to work on this project, though. Start it as early as you can!**
 
+## Features
+
+### Home Page
+- Welcome dialog that prompts users to enter their name on first visit
+- Interactive signboard with 3D tilt effect that responds to mouse movement
+- Floating tea leaves animation in the background
+- Smooth scroll navigation to the brochure section with custom easing animations
+- Interactive brochure interface with page-flipping animations
+- Book-style layout displaying 6 tea types across 3 pages (2 teas per page)
+- Clickable tea cards that navigate to individual tea detail pages
+- Page navigation controls (previous/next buttons) with boundary detection
+- Page position persistence using localStorage to remember current page on refresh
+- Ripple effect animations on background clicks
+- Username display component in the top right corner with edit functionality
+- Responsive design that adapts to all screen sizes
+
+### Tea Detail Pages
+- Individual pages for each of 6 tea types: White, Yellow, Green, Oolong, Black, and Pu-erh
+- Tea-specific color themes that match each tea's characteristics
+- Comprehensive information sections:
+  - Origin and history
+  - Flavor profile descriptions
+  - Processing methods
+  - Health benefits displayed as chips
+  - Brewing tips and recommendations
+  - Fun facts in an expandable accordion
+- Interactive quizzes with scroll-triggered slide-in animations
+- Comments section for each tea type with persistent storage
+- Swipeable drawer navigation menu for quick tea switching
+- Back button to return to home page with smooth scroll to brochure section
+- Username display in top right corner
+- Ripple effect animations on background interactions
+- Scroll position reset when navigating between tea pages
+
+### Quiz System
+- Multiple choice quiz questions with 4 answer options
+- Live voting system that tracks votes and displays counts in real-time
+- User names displayed alongside vote counts (shows first 3 names, then "+X more")
+- Visual feedback with correct/incorrect indicators (green checkmark or red X)
+- Progress bars showing vote percentages for each option
+- Ability to change votes after initial selection
+- Detailed explanations displayed after answering
+- Scroll-triggered animations that slide quizzes into view when scrolled to
+- Letter labels (A, B, C, D) for each option
+- Color-coded progress bars (green for correct, red for incorrect, tan for unselected)
+- Username prompt if not set when attempting to vote
+
+### Comments System
+- Per-page comment storage using localStorage (separate storage for each tea type)
+- Comment form with name and text input fields
+- Auto-populated name field from stored username
+- Timestamp display for each comment
+- Comments displayed in reverse chronological order (newest first)
+- Empty state message when no comments exist
+- Form validation requiring both name and comment text
+- Persistent storage that survives page refreshes
+
+### Username Management
+- localStorage-based username persistence
+- Cross-tab synchronization using storage events
+- Edit functionality via dialog modal
+- Auto-population in comment forms and quiz interactions
+- Welcome dialog on first visit
+- Username display component with edit button
+- Validation to ensure non-empty usernames
+
+### Design & User Experience
+- Custom Material UI theme with tea-inspired color palette (dark green, tan, parchment)
+- Typography using Playfair Display for headings and Work Sans for body text
+- Responsive grid layouts that adapt to mobile, tablet, and desktop
+- Card-based layouts with hover effects and elevation changes
+- Smooth transitions and animations throughout the interface
+- Accordion components for expandable content sections
+- Custom CSS animations for page flips, ripples, and scroll effects
+- Tea-themed gradients and color schemes
+- Icon integration using Material UI icons
+- Consistent spacing and padding across all components
+- High contrast text for readability
+- Accessible button labels and ARIA attributes
+
+### Navigation & Routing
+- React Router for client-side routing
+- Dynamic routes for tea pages (`/tea/:teaType`)
+- Hash-based scrolling to specific page sections
+- Navigation drawer menu with swipeable functionality on mobile
+- Breadcrumb-style back navigation
+- Smooth scroll behavior with custom easing functions
+- URL hash management for deep linking
+
+### Data Persistence
+- localStorage for username storage
+- localStorage for comment storage (per tea type)
+- localStorage for menu page position
+- Quiz votes stored in component state (persists during session)
+- Cross-tab synchronization for username changes
+
+### Interactive Elements
+- Clickable tea cards with hover effects
+- Page flip buttons with visual feedback
+- Quiz option selection with immediate visual response
+- Comment submission with form validation
+- Username edit dialog with form submission
+- Drawer menu with swipe gestures on mobile devices
+- Background click ripples for visual feedback
+
 ## Things to Consider
 This task is tough and time-intensive! Try your best with it. I am really excited to see what you come up with. Please start working on it early, and budget your time well. I am going to be strict about the deadline.
 
