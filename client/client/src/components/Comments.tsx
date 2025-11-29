@@ -1,8 +1,4 @@
-/**
- * Comments.tsx
- * ----------
- * Comment section component
- */
+// Comment section for tea pages
 import { useState, useEffect } from 'react';
 import { getUsername } from '../utils/username';
 import API_BASE from '../utils/api';
@@ -32,7 +28,6 @@ export default function Comments({ pageId }: CommentsProps) {
     }
   }, []);
 
-  // Fetch comments from API when pageId changes
   useEffect(() => {
     const fetchComments = async () => {
       try {
@@ -40,7 +35,6 @@ export default function Comments({ pageId }: CommentsProps) {
         const response = await fetch(`${API_BASE}/api/comments/${pageId}`);
         if (response.ok) {
           const data = await response.json();
-          // Map API response to Comment interface
           const mappedComments: Comment[] = data.map((c: any) => ({
             id: c._id || Date.now(),
             author: c.userName,
@@ -80,7 +74,6 @@ export default function Comments({ pageId }: CommentsProps) {
 
       if (response.ok) {
         const savedComment = await response.json();
-        // Add new comment to front of array (newest first)
         const newCommentObj: Comment = {
           id: savedComment._id || Date.now(),
           author: savedComment.userName,

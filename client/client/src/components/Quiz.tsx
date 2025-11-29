@@ -1,14 +1,4 @@
-/**
- * Quiz Component
- * 
- * Interactive quiz component that displays questions with multiple choice options.
- * Features:
- * - Users can select an answer option
- * - Shows live vote counts and percentages from all users
- * - Displays correct/incorrect feedback when user selects an answer
- * - Fetches and posts votes to the backend API
- * - Supports theming to match the tea page color scheme
- */
+// Interactive quiz with voting and live results
 import { useState, useEffect } from 'react';
 import {
   Card,
@@ -41,6 +31,8 @@ interface QuizTheme {
   iconColor: string;
   textColor: string;
   borderColor: string;
+  chipBackground?: string;
+  chipBorder?: string;
 }
 
 interface QuizProps {
@@ -52,19 +44,43 @@ interface QuizProps {
 }
 
 export default function Quiz({ question, options, explanation, questionId, theme }: QuizProps) {
-  // Default theme if not provided (fallback to original colors)
   const defaultTheme: QuizTheme = {
     primary: '#fff7e7',
     secondary: '#e9d1a9',
     iconColor: 'rgba(201, 165, 112, 0.9)',
     textColor: 'var(--ink)',
-    borderColor: 'rgba(201, 165, 112, 0.3)'
+    borderColor: 'rgba(201, 165, 112, 0.3)',
+    chipBackground: 'rgba(201, 165, 112, 0.3)',
+    chipBorder: 'rgba(201, 165, 112, 0.4)'
   };
   
   const quizTheme = theme || defaultTheme;
+  
+  // Check if theme is dark (black or pu-erh tea)
+  const isDarkTheme = quizTheme.primary === '#3e2723' || quizTheme.primary === '#6d4c41';
+  
+  const getOptionBackground = (isSelected: boolean) => {
+    if (isDarkTheme) {
+      return isSelected 
+        ? quizTheme.secondary 
+        : `linear-gradient(135deg, ${quizTheme.primary}, ${quizTheme.secondary})`;
+    } else {
+      return isSelected
+        ? 'rgba(255, 255, 255, 0.9)'
+        : 'rgba(255, 255, 255, 0.6)';
+    }
+  };
+  
+  const getOptionHoverBackground = () => {
+    if (isDarkTheme) {
+      return quizTheme.secondary;
+    } else {
+      return 'rgba(255, 255, 255, 0.8)';
+    }
+  };
+  
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
-  // Track votes for each option: { 0: {count: 5, users: ['Alice', 'Bob']}, 1: {...}, ... }
   const [votes, setVotes] = useState<Record<number, { count: number; users: string[] }>>(() => {
     const initial: Record<number, { count: number; users: string[] }> = {};
     options.forEach((_, index) => {
@@ -72,28 +88,17 @@ export default function Quiz({ question, options, explanation, questionId, theme
     });
     return initial;
   });
-  const [userName, setUserName] = useState('');
   const [userVote, setUserVote] = useState<number | null>(null);
-  const [, setLoading] = useState(false);
-  useEffect(() => {
-    const storedUsername = getUsername();
-    if (storedUsername) {
-      setUserName(storedUsername);
-    }
-  }, []);
 
-  // Fetch votes from API when component mounts or questionId changes
   useEffect(() => {
     const fetchVotes = async () => {
       try {
-        setLoading(true);
         const response = await fetch(`${API_BASE}/api/votes/${questionId}`);
         if (response.ok) {
           const voteData = await response.json();
-          // Aggregate votes by option
           const aggregated: Record<number, { count: number; users: string[] }> = {};
           options.forEach((_, index) => {
-            const optionLetter = String.fromCharCode(65 + index); // A, B, C, D
+            const optionLetter = String.fromCharCode(65 + index);
             const optionVotes = voteData.filter((v: any) => v.selectedOption === optionLetter);
             aggregated[index] = {
               count: optionVotes.length,
@@ -104,11 +109,8 @@ export default function Quiz({ question, options, explanation, questionId, theme
         }
       } catch (err) {
         console.error("Error fetching votes:", err);
-      } finally {
-        setLoading(false);
       }
     };
-
     fetchVotes();
   }, [questionId, options.length]);
 
@@ -117,11 +119,7 @@ export default function Quiz({ question, options, explanation, questionId, theme
       return;
     }
 
-    // Always get the latest username from localStorage to ensure consistency
-    // This ensures we use the same username even if it was changed elsewhere
     let currentUserName = getUsername();
-    
-    // If no username in localStorage, prompt user to enter one
     if (!currentUserName.trim()) {
       const name = prompt('Please enter your name to vote:') || 'Anonymous';
       if (name && name !== 'Anonymous') {
@@ -130,8 +128,6 @@ export default function Quiz({ question, options, explanation, questionId, theme
       } else {
         currentUserName = name;
       }
-      // Update local state for display
-      setUserName(currentUserName);
     }
 
     const optionLetter = String.fromCharCode(65 + index); // Convert index to letter: 0->A, 1->B, etc.
@@ -149,26 +145,20 @@ export default function Quiz({ question, options, explanation, questionId, theme
       });
 
       if (response.ok) {
-        // If user had a previous vote, we need to handle it
-        // For simplicity, we'll just add the new vote and refetch all votes
-        // (In a production app, you might want to update/delete the old vote)
-        const fetchVotes = async () => {
-          const voteResponse = await fetch(`${API_BASE}/api/votes/${questionId}`);
-          if (voteResponse.ok) {
-            const voteData = await voteResponse.json();
-            const aggregated: Record<number, { count: number; users: string[] }> = {};
-            options.forEach((_, idx) => {
-              const optLetter = String.fromCharCode(65 + idx);
-              const optionVotes = voteData.filter((v: any) => v.selectedOption === optLetter);
-              aggregated[idx] = {
-                count: optionVotes.length,
-                users: optionVotes.map((v: any) => v.userName)
-              };
-            });
-            setVotes(aggregated);
-          }
-        };
-        await fetchVotes();
+        const voteResponse = await fetch(`${API_BASE}/api/votes/${questionId}`);
+        if (voteResponse.ok) {
+          const voteData = await voteResponse.json();
+          const aggregated: Record<number, { count: number; users: string[] }> = {};
+          options.forEach((_, idx) => {
+            const optLetter = String.fromCharCode(65 + idx);
+            const optionVotes = voteData.filter((v: any) => v.selectedOption === optLetter);
+            aggregated[idx] = {
+              count: optionVotes.length,
+              users: optionVotes.map((v: any) => v.userName)
+            };
+          });
+          setVotes(aggregated);
+        }
         setUserVote(index);
         setSelectedOption(index);
         setShowResult(true);
@@ -235,30 +225,29 @@ export default function Quiz({ question, options, explanation, questionId, theme
                     showCorrect 
                       ? (isCorrect ? 'rgba(74, 124, 89, 0.5)' : 'rgba(201, 74, 74, 0.5)')
                       : isSelected 
-                        ? 'rgba(201, 165, 112, 0.5)'
-                        : 'rgba(0, 0, 0, 0.1)'
+                        ? (isDarkTheme ? quizTheme.borderColor : 'rgba(201, 165, 112, 0.5)')
+                        : (isDarkTheme ? quizTheme.borderColor : 'rgba(0, 0, 0, 0.1)')
                   }`,
                   background: showCorrect
                     ? (isCorrect ? 'rgba(74, 124, 89, 0.1)' : 'rgba(201, 74, 74, 0.1)')
-                    : isSelected
-                      ? 'rgba(255, 255, 255, 0.9)'
-                      : 'rgba(255, 255, 255, 0.6)',
+                    : getOptionBackground(isSelected),
                   '&:hover': {
                     transform: 'translateX(4px)',
                     boxShadow: 4,
-                    background: 'rgba(255, 255, 255, 0.8)'
+                    background: getOptionHoverBackground()
                   }
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: showResult ? 1 : 0 }}>
                   <Chip
-                    label={String.fromCharCode(65 + index)} // Convert index to letter: 0->A, 1->B, 2->C, 3->D
+                    label={String.fromCharCode(65 + index)}
                     size="small"
                     sx={{
-                      background: 'rgba(201, 165, 112, 0.3)',
+                      background: isDarkTheme ? (quizTheme.chipBackground || 'rgba(255, 255, 255, 0.15)') : 'rgba(201, 165, 112, 0.3)',
                       color: quizTheme.textColor,
                       fontWeight: 700,
-                      minWidth: '32px'
+                      minWidth: '32px',
+                      border: isDarkTheme ? `1px solid ${quizTheme.chipBorder || quizTheme.borderColor}` : 'none'
                     }}
                   />
                   <Typography sx={{ flex: 1, color: quizTheme.textColor, fontWeight: isSelected ? 600 : 400 }}>
@@ -282,9 +271,12 @@ export default function Quiz({ question, options, explanation, questionId, theme
                         {votes[index].count} votes ({percentage.toFixed(0)}%)
                       </Typography>
                       {votes[index].users.length > 0 && (
-                        <Typography variant="caption" sx={{ fontStyle: 'italic', color: 'rgba(44, 27, 16, 0.6)' }}>
-                          {votes[index].users.slice(0, 3).join(', ')} {/* Show first 3 users */}
-                          {votes[index].users.length > 3 && ` +${votes[index].users.length - 3} more`} {/* Show count if more than 3 */}
+                        <Typography variant="caption" sx={{ 
+                          fontStyle: 'italic', 
+                          color: isDarkTheme ? 'rgba(239, 235, 233, 0.7)' : 'rgba(44, 27, 16, 0.6)' 
+                        }}>
+                          {votes[index].users.slice(0, 3).join(', ')}
+                          {votes[index].users.length > 3 && ` +${votes[index].users.length - 3} more`}
                         </Typography>
                       )}
                     </Box>

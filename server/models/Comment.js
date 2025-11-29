@@ -1,3 +1,4 @@
+// Comment model
 const mongoose = require('mongoose');
 
 const CommentSchema = new mongoose.Schema({
@@ -7,7 +8,5 @@ const CommentSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now }
 });
 
-// Check if the model is already defined, otherwise create it
 const Comment = mongoose.models.Comment || mongoose.model('Comment', CommentSchema);
-
 module.exports = Comment;

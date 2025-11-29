@@ -1,14 +1,4 @@
-/**
- * Tea Page Component
- * 
- * Main page component for displaying individual tea type information.
- * Features:
- * - Displays tea information (origin, flavor, processing, health benefits, etc.)
- * - Shows interactive quizzes with voting functionality
- * - Includes comment section for user feedback
- * - Handles scroll-based animations for content sections
- * - Manages navigation between different tea types
- */
+// Individual tea type page with information, quizzes, and comments
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useLayoutEffect, useRef } from 'react';
 import { Box, SwipeableDrawer, Button, List, ListItem, ListItemButton, ListItemText, Typography, Divider } from '@mui/material';
@@ -308,18 +298,10 @@ const allTeaTypes = [
 const iOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export default function Tea() {
-  // Get tea type from URL parameters
   const { teaType } = useParams<{ teaType: string }>();
   const navigate = useNavigate();
-  
-  // Get tea data for the current tea type, or null if tea type doesn't exist
   const tea = teaType ? teaData[teaType] : null;
-  
-  // State for ripple animation effects on background clicks
   const [ripples, setRipples] = useState<Ripple[]>([]);
-  
-  // Visibility states for scroll-based animations
-  // These control when sections slide into view as user scrolls
   const [firstQuizVisible, setFirstQuizVisible] = useState(false);
   const [secondQuizVisible, setSecondQuizVisible] = useState(false);
   const [originVisible, setOriginVisible] = useState(false);
@@ -328,9 +310,6 @@ export default function Tea() {
   const [healthVisible, setHealthVisible] = useState(false);
   const [brewingVisible, setBrewingVisible] = useState(false);
   const [funFactsVisible, setFunFactsVisible] = useState(false);
-  
-  // Refs for DOM elements that need scroll-based animations
-  // IntersectionObserver will watch these elements and update visibility states
   const firstQuizRef = useRef<HTMLDivElement>(null);
   const secondQuizRef = useRef<HTMLDivElement>(null);
   const originRef = useRef<HTMLDivElement>(null);
@@ -339,12 +318,7 @@ export default function Tea() {
   const healthRef = useRef<HTMLDivElement>(null);
   const brewingRef = useRef<HTMLDivElement>(null);
   const funFactsRef = useRef<HTMLDivElement>(null);
-  
-  // State for mobile navigation drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
-
-  // Reset scroll position to top when tea type changes
-  // This ensures users start at the top of the page when navigating between tea types
   useLayoutEffect(() => {
     const originalScrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = 'auto';
@@ -356,8 +330,6 @@ export default function Tea() {
     });
   }, [teaType]);
 
-  // Reset all visibility states when tea type changes
-  // This ensures animations retrigger when navigating to a different tea page
   useEffect(() => {
     setFirstQuizVisible(false);
     setSecondQuizVisible(false);
@@ -370,18 +342,11 @@ export default function Tea() {
   }, [teaType]);
 
   useEffect(() => {
-    // IntersectionObserver tracks when elements enter or leave the viewport
-    // This is more efficient than constantly checking scroll position
-    // Threshold of 0.2 means animation triggers when 20% of element is visible
     const observerOptions = {
       threshold: 0.2,
       rootMargin: '0px'
     };
-
-    // Create a map of DOM elements to their visibility setters
     const elementSetterMap = new Map<HTMLElement, (value: boolean) => void>();
-    
-    // Build the map from refs to setters
     const refs = [
       { ref: firstQuizRef, setter: setFirstQuizVisible },
       { ref: secondQuizRef, setter: setSecondQuizVisible },
@@ -392,7 +357,6 @@ export default function Tea() {
       { ref: brewingRef, setter: setBrewingVisible },
       { ref: funFactsRef, setter: setFunFactsVisible }
     ];
-
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         const setter = elementSetterMap.get(entry.target as HTMLElement);
@@ -401,16 +365,12 @@ export default function Tea() {
         }
       });
     }, observerOptions);
-
-    // Observe all refs and map them to their setters
     refs.forEach(({ ref, setter }) => {
       if (ref.current) {
         elementSetterMap.set(ref.current, setter);
         observer.observe(ref.current);
       }
     });
-
-    // Cleanup: disconnect observer when component unmounts or tea changes
     return () => {
       observer.disconnect();
     };

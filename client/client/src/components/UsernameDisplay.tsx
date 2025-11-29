@@ -1,9 +1,4 @@
-/**
- * UsernameDisplay.tsx
- * ----------
- * Reusable username display component with edit functionality
- * Fixed position in top right corner with high contrast for readability
- */
+// Username display with edit functionality
 import { useState, useEffect } from 'react';
 import { Box, IconButton, Typography, Dialog, DialogTitle, DialogContent, TextField, Button } from '@mui/material';
 import { Person, Edit, CheckCircle } from '@mui/icons-material';
@@ -13,10 +8,8 @@ import './UsernameDisplay.css';
 export default function UsernameDisplay() {
   const [username, setUsernameState] = useState(() => getUsername());
   const [showUsernameInput, setShowUsernameInput] = useState(false);
-  // Separate state for the input field to avoid conflicts with displayed username
   const [inputValue, setInputValue] = useState('');
 
-  // Listen for localStorage changes to update username display
   useEffect(() => {
     const handleStorageChange = () => {
       const newUsername = getUsername();
@@ -24,13 +17,9 @@ export default function UsernameDisplay() {
         setUsernameState(newUsername);
       }
     };
-
-    // Check for changes periodically (when component is visible)
     const interval = setInterval(() => {
       handleStorageChange();
     }, 500);
-
-    // Also listen for storage events (for cross-tab updates)
     window.addEventListener('storage', handleStorageChange);
 
     return () => {
@@ -39,33 +28,27 @@ export default function UsernameDisplay() {
     };
   }, [username]);
 
-  // When dialog opens, initialize input with current username
   const handleEdit = () => {
     setInputValue(username);
     setShowUsernameInput(true);
   };
 
-  // Save the new username when form is submitted
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const trimmedValue = inputValue.trim();
     if (trimmedValue) {
-      // Save to localStorage
       setUsername(trimmedValue);
-      // Update local state immediately
       setUsernameState(trimmedValue);
-      // Close dialog
       setShowUsernameInput(false);
     }
   };
 
-  // Update input field value as user types
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInputValue(e.target.value);
   };
 
   if (!username) {
-    return null; // Don't show if no username is set
+    return null;
   }
 
   return (
@@ -83,7 +66,6 @@ export default function UsernameDisplay() {
         </IconButton>
       </Box>
 
-      {/* Username Edit Dialog */}
       <Dialog 
         open={showUsernameInput} 
         onClose={() => setShowUsernameInput(false)}

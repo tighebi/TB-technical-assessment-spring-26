@@ -1,18 +1,4 @@
-/**
- * Tea Layouts Component
- * 
- * Unified layout component for displaying tea information pages.
- * This component renders all tea-related content in a consistent structure:
- * - Origin and flavor profile cards (side by side)
- * - Processing information (full width)
- * - Interactive quizzes with scroll-based animations
- * - Health benefits and brewing tips (side by side)
- * - Fun facts accordion
- * - Comments section
- * 
- * The component uses tea-specific color themes that match each tea type's characteristics.
- * All content sections use scroll-based slide-in animations for better user experience.
- */
+// Unified layout for tea information pages with themed colors and animations
 import type { ComponentType, RefObject } from 'react';
 import {
   Card,
@@ -90,21 +76,7 @@ interface TeaTheme {
   accordionBg: string;       // Accordion background
 }
 
-/**
- * Get Tea Theme
- * 
- * Returns color theme configuration based on tea type.
- * Each tea type has a unique color scheme that visually represents its characteristics:
- * - White tea: Light cream and beige tones (delicate)
- * - Yellow tea: Pale yellow and gold tones (rare)
- * - Green tea: Light green tones (fresh)
- * - Oolong tea: Amber and orange tones (balanced)
- * - Black tea: Dark brown tones (bold)
- * - Pu-erh tea: Earthy brown tones (aged)
- * 
- * @param {string|undefined} teaType - The tea type identifier
- * @returns {TeaTheme} Object containing color values for the theme
- */
+// Returns color theme based on tea type
 const getTeaTheme = (teaType: string | undefined): TeaTheme => {
   switch (teaType) {
     case 'white':
@@ -187,13 +159,6 @@ const getTeaTheme = (teaType: string | undefined): TeaTheme => {
   }
 };
 
-/**
- * Unified layout component for all tea types
- * 
- * This component receives tea data and renders it in a consistent layout structure.
- * The theme colors change based on tea type, but the layout structure stays the same.
- * Uses refs to trigger scroll-based animations for quizzes.
- */
 export default function TeaLayouts({ 
   tea, 
   teaType, 
