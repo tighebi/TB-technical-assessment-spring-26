@@ -20,11 +20,13 @@ Please check off which features you have implemented:
 ## Screen Recording 
 **Link**: [paste it here]
 
+Website Link: https://tb-technical-assessment-spring-26-x.vercel.app/
+
 ## Written Portion
 1. **How did the project go? What parts of it did you most enjoy / find yourself good at?**
 
-I enjoyed the creative freedom of the project, specifically making the front end. It was fun to try out ideas to make the menus and pages engaging. I spent a lot of time refining smaller aspects of the website to make them just like I wanted. While there were some struggles along the way, bringing the complex UI together was rewarding.
+I enjoyed the creative freedom of the project, specifically making the frontend. It was fun to try out ideas to make the menus and pages engaging. I spent a lot of time refining smaller aspects of the website to function as I envisioned. While there were some struggles along the way, bringing the complex UI together was rewarding.
 
 2. **Was this technical assessment what you expected? If you had another two weeks to work on it, what would you add or change?**
 
-This was similar to how I thought the assessment would go. I enjoyed making the front end but it was still a steep learning curve. I had minimal experience with back end before so I had to learn and deploy using bits of JDT. Regarding the deployment, I planned to use Heroku but there was some issues signing in so I pivoted to using Render and Vercel to get a live working build. With some more time there are aspects I would like to edit or fix about the site. The book on the main screen that acts as a menu to choose teas could be smoother and not have the reverse text bug. It would also be nice to add some more content. Finally, I wish I could make more variety amoung the different tea pages so it isn't so repetative.
+This was similar to how I thought the assessment would go. I enjoyed making the frontend, but it was still a steep learning curve. I had minimal experience with backend before, so I had to learn and deploy using my JDT experience and online assistance. With some more time, there are aspects I would like to edit or fix about the site. The book on the main screen that acts as a menu to choose teas could be smoother and not have the reverse text bug. It would also be nice to add some more content. Finally, I wish I could make more variety among the different tea pages so it isn't so repetitive. Regarding the deployment, I planned to use Heroku, but there were some issues signing in, so I pivoted to using Render and Vercel to get a live working build. Because Render spins down after inactivity and takes time to start up again, voting and commenting will need some time when first opening the website.
