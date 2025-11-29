@@ -13,8 +13,8 @@ const voteRoutes = require('./routes/r_votes');
 app.use(cors({
   origin: [
       "http://localhost:5173",
-      "https://h4i-spring-26-tea-backend.onrender.com", // (Optional, but good for self-checks)
-      "https://YOUR-NEW-VERCEL-LINK.vercel.app" // 👈 PASTE VERCEL LINK HERE
+      "https://h4i-spring-26-tea-backend.onrender.com", 
+      "https://tb-technical-assessment-spring-26-x.vercel.app"
   ],
   credentials: true
 }));
