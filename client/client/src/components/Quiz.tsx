@@ -117,15 +117,21 @@ export default function Quiz({ question, options, explanation, questionId, theme
       return;
     }
 
-    // Ensure user has a name
-    let currentUserName = userName;
+    // Always get the latest username from localStorage to ensure consistency
+    // This ensures we use the same username even if it was changed elsewhere
+    let currentUserName = getUsername();
+    
+    // If no username in localStorage, prompt user to enter one
     if (!currentUserName.trim()) {
       const name = prompt('Please enter your name to vote:') || 'Anonymous';
       if (name && name !== 'Anonymous') {
         setUsername(name);
+        currentUserName = name;
+      } else {
+        currentUserName = name;
       }
-      setUserName(name);
-      currentUserName = name;
+      // Update local state for display
+      setUserName(currentUserName);
     }
 
     const optionLetter = String.fromCharCode(65 + index); // Convert index to letter: 0->A, 1->B, etc.
