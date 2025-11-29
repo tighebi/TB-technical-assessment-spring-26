@@ -1,7 +1,17 @@
 /**
- * TeaLayouts.tsx
- * ----------
- * Unified layout for all tea types with tea-specific color themes
+ * Tea Layouts Component
+ * 
+ * Unified layout component for displaying tea information pages.
+ * This component renders all tea-related content in a consistent structure:
+ * - Origin and flavor profile cards (side by side)
+ * - Processing information (full width)
+ * - Interactive quizzes with scroll-based animations
+ * - Health benefits and brewing tips (side by side)
+ * - Fun facts accordion
+ * - Comments section
+ * 
+ * The component uses tea-specific color themes that match each tea type's characteristics.
+ * All content sections use scroll-based slide-in animations for better user experience.
  */
 import type { ComponentType, RefObject } from 'react';
 import {
@@ -15,7 +25,6 @@ import {
   AccordionDetails,
   Divider,
   Stack,
-  Fade,
   Container
 } from '@mui/material';
 import Grid from '@mui/material/Grid';
@@ -53,6 +62,18 @@ interface TeaLayoutsProps {
   secondQuizRef: RefObject<HTMLDivElement | null>;
   firstQuizVisible: boolean;
   secondQuizVisible: boolean;
+  originRef: RefObject<HTMLDivElement | null>;
+  flavorRef: RefObject<HTMLDivElement | null>;
+  processingRef: RefObject<HTMLDivElement | null>;
+  healthRef: RefObject<HTMLDivElement | null>;
+  brewingRef: RefObject<HTMLDivElement | null>;
+  funFactsRef: RefObject<HTMLDivElement | null>;
+  originVisible: boolean;
+  flavorVisible: boolean;
+  processingVisible: boolean;
+  healthVisible: boolean;
+  brewingVisible: boolean;
+  funFactsVisible: boolean;
   QuizComponent: ComponentType<any>;
   CommentsComponent: ComponentType<any>;
 }
@@ -70,9 +91,19 @@ interface TeaTheme {
 }
 
 /**
- * Returns color theme configuration based on tea type
- * Each tea has a unique color scheme that matches its characteristics
- * (e.g., white tea = light colors, black tea = dark colors)
+ * Get Tea Theme
+ * 
+ * Returns color theme configuration based on tea type.
+ * Each tea type has a unique color scheme that visually represents its characteristics:
+ * - White tea: Light cream and beige tones (delicate)
+ * - Yellow tea: Pale yellow and gold tones (rare)
+ * - Green tea: Light green tones (fresh)
+ * - Oolong tea: Amber and orange tones (balanced)
+ * - Black tea: Dark brown tones (bold)
+ * - Pu-erh tea: Earthy brown tones (aged)
+ * 
+ * @param {string|undefined} teaType - The tea type identifier
+ * @returns {TeaTheme} Object containing color values for the theme
  */
 const getTeaTheme = (teaType: string | undefined): TeaTheme => {
   switch (teaType) {
@@ -170,6 +201,18 @@ export default function TeaLayouts({
   secondQuizRef, 
   firstQuizVisible, 
   secondQuizVisible,
+  originRef,
+  flavorRef,
+  processingRef,
+  healthRef,
+  brewingRef,
+  funFactsRef,
+  originVisible,
+  flavorVisible,
+  processingVisible,
+  healthVisible,
+  brewingVisible,
+  funFactsVisible,
   QuizComponent,
   CommentsComponent
 }: TeaLayoutsProps) {
@@ -180,7 +223,10 @@ export default function TeaLayouts({
       {/* First Section: Origin and Flavor side by side */}
       <Grid container spacing={3} sx={{ mb: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Fade in={true} timeout={600}>
+          <div 
+            ref={originRef}
+            className={`quiz-slide-left ${originVisible ? 'visible' : ''}`}
+          >
             <Card 
               sx={{ 
                 height: '100%',
@@ -216,10 +262,13 @@ export default function TeaLayouts({
                 </Typography>
               </CardContent>
             </Card>
-          </Fade>
+          </div>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Fade in={true} timeout={800}>
+          <div 
+            ref={flavorRef}
+            className={`quiz-slide-right ${flavorVisible ? 'visible' : ''}`}
+          >
             <Card 
               sx={{ 
                 height: '100%',
@@ -255,12 +304,15 @@ export default function TeaLayouts({
                 </Typography>
               </CardContent>
             </Card>
-          </Fade>
+          </div>
         </Grid>
       </Grid>
 
       {/* Processing - Full Width */}
-      <Fade in={true} timeout={1000}>
+      <div 
+        ref={processingRef}
+        className={`quiz-slide-left ${processingVisible ? 'visible' : ''}`}
+      >
         <Box sx={{ mb: 3 }}>
           <Card 
             sx={{ 
@@ -297,7 +349,7 @@ export default function TeaLayouts({
             </CardContent>
           </Card>
         </Box>
-      </Fade>
+      </div>
 
       {/* First Quiz */}
       {tea.quizzes.length > 0 && (
@@ -310,6 +362,7 @@ export default function TeaLayouts({
             options={tea.quizzes[0].options}
             explanation={tea.quizzes[0].explanation}
             questionId={`${teaType}-q1`}
+            theme={theme}
           />
         </div>
       )}
@@ -317,7 +370,10 @@ export default function TeaLayouts({
       {/* Second Section: Health Benefits and Brewing side by side */}
       <Grid container spacing={3} sx={{ mb: 3, mt: 3 }}>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Fade in={true} timeout={1200}>
+          <div 
+            ref={healthRef}
+            className={`quiz-slide-left ${healthVisible ? 'visible' : ''}`}
+          >
             <Card 
               sx={{ 
                 height: '100%',
@@ -367,15 +423,18 @@ export default function TeaLayouts({
                         transition: 'all 0.2s ease'
                       }}
                     />
-                  ))}
-                </Stack>
-              </CardContent>
-            </Card>
-          </Fade>
+                ))}
+              </Stack>
+            </CardContent>
+          </Card>
+          </div>
         </Grid>
         <Grid size={{ xs: 12, md: 6 }}>
-          <Fade in={true} timeout={1400}>
-            <Card 
+          <div 
+            ref={brewingRef}
+            className={`quiz-slide-right ${brewingVisible ? 'visible' : ''}`}
+          >
+            <Card
               sx={{ 
                 height: '100%',
                 background: `linear-gradient(135deg, ${theme.primary} 0%, ${theme.secondary} 100%)`,
@@ -410,7 +469,7 @@ export default function TeaLayouts({
                 </Typography>
               </CardContent>
             </Card>
-          </Fade>
+          </div>
         </Grid>
       </Grid>
 
@@ -425,12 +484,16 @@ export default function TeaLayouts({
             options={tea.quizzes[1].options}
             explanation={tea.quizzes[1].explanation}
             questionId={`${teaType}-q2`}
+            theme={theme}
           />
         </div>
       )}
 
       {/* Fun Facts Accordion */}
-      <Fade in={true} timeout={1600}>
+      <div 
+        ref={funFactsRef}
+        className={`quiz-slide-left ${funFactsVisible ? 'visible' : ''}`}
+      >
         <Box sx={{ mb: 3 }}>
           <Accordion 
             sx={{ 
@@ -489,7 +552,7 @@ export default function TeaLayouts({
             </AccordionDetails>
           </Accordion>
         </Box>
-      </Fade>
+      </div>
 
       {/* Comments Section */}
       <Divider sx={{ my: 4, borderColor: theme.borderColor }} />

@@ -1,7 +1,13 @@
 /**
- * Quiz.tsx
- * ----------
- * Interactive quiz component with live results
+ * Quiz Component
+ * 
+ * Interactive quiz component that displays questions with multiple choice options.
+ * Features:
+ * - Users can select an answer option
+ * - Shows live vote counts and percentages from all users
+ * - Displays correct/incorrect feedback when user selects an answer
+ * - Fetches and posts votes to the backend API
+ * - Supports theming to match the tea page color scheme
  */
 import { useState, useEffect } from 'react';
 import {
@@ -29,14 +35,33 @@ interface QuizOption {
   isCorrect: boolean;
 }
 
+interface QuizTheme {
+  primary: string;
+  secondary: string;
+  iconColor: string;
+  textColor: string;
+  borderColor: string;
+}
+
 interface QuizProps {
   question: string;
   options: QuizOption[];
   explanation?: string;
   questionId: string; // Unique identifier for this question (e.g., "white-q1", "green-q2")
+  theme?: QuizTheme; // Optional theme for matching page colors
 }
 
-export default function Quiz({ question, options, explanation, questionId }: QuizProps) {
+export default function Quiz({ question, options, explanation, questionId, theme }: QuizProps) {
+  // Default theme if not provided (fallback to original colors)
+  const defaultTheme: QuizTheme = {
+    primary: '#fff7e7',
+    secondary: '#e9d1a9',
+    iconColor: 'rgba(201, 165, 112, 0.9)',
+    textColor: 'var(--ink)',
+    borderColor: 'rgba(201, 165, 112, 0.3)'
+  };
+  
+  const quizTheme = theme || defaultTheme;
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showResult, setShowResult] = useState(false);
   // Track votes for each option: { 0: {count: 5, users: ['Alice', 'Bob']}, 1: {...}, ... }
@@ -158,23 +183,23 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
     <Card 
       className="quiz-container"
       sx={{
-        background: 'linear-gradient(145deg, #fff7e7, #e9d1a9)',
+        background: `linear-gradient(145deg, ${quizTheme.primary}, ${quizTheme.secondary})`,
         borderRadius: '20px',
-        border: '2px solid rgba(201, 165, 112, 0.3)',
+        border: `2px solid ${quizTheme.borderColor}`,
         boxShadow: '0 8px 20px rgba(0, 0, 0, 0.15)',
         overflow: 'visible'
       }}
     >
       <CardContent sx={{ p: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-          <QuizIcon sx={{ color: 'rgba(201, 165, 112, 0.9)', fontSize: '2rem' }} />
+          <QuizIcon sx={{ color: quizTheme.iconColor, fontSize: '2rem' }} />
           <Typography 
             variant="h5" 
             component="h3"
             sx={{ 
               fontFamily: "'Playfair Display', serif",
               fontWeight: 700,
-              color: 'var(--ink)',
+              color: quizTheme.textColor,
               flex: 1
             }}
           >
@@ -225,12 +250,12 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
                     size="small"
                     sx={{
                       background: 'rgba(201, 165, 112, 0.3)',
-                      color: 'var(--ink)',
+                      color: quizTheme.textColor,
                       fontWeight: 700,
                       minWidth: '32px'
                     }}
                   />
-                  <Typography sx={{ flex: 1, color: 'var(--ink)', fontWeight: isSelected ? 600 : 400 }}>
+                  <Typography sx={{ flex: 1, color: quizTheme.textColor, fontWeight: isSelected ? 600 : 400 }}>
                     {option.text}
                   </Typography>
                   {showCorrect && (
@@ -247,7 +272,7 @@ export default function Quiz({ question, options, explanation, questionId }: Qui
                 {showResult && (
                   <Box sx={{ mt: 1.5 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 0.5 }}>
-                      <Typography variant="caption" sx={{ fontWeight: 600, color: 'var(--ink)' }}>
+                      <Typography variant="caption" sx={{ fontWeight: 600, color: quizTheme.textColor }}>
                         {votes[index].count} votes ({percentage.toFixed(0)}%)
                       </Typography>
                       {votes[index].users.length > 0 && (

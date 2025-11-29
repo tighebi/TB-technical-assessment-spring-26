@@ -13,6 +13,8 @@ import './UsernameDisplay.css';
 export default function UsernameDisplay() {
   const [username, setUsernameState] = useState(() => getUsername());
   const [showUsernameInput, setShowUsernameInput] = useState(false);
+  // Separate state for the input field to avoid conflicts with displayed username
+  const [inputValue, setInputValue] = useState('');
 
   // Listen for localStorage changes to update username display
   useEffect(() => {
@@ -37,20 +39,29 @@ export default function UsernameDisplay() {
     };
   }, [username]);
 
+  // When dialog opens, initialize input with current username
   const handleEdit = () => {
+    setInputValue(username);
     setShowUsernameInput(true);
   };
 
+  // Save the new username when form is submitted
   const handleUsernameSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (username.trim()) {
-      setUsername(username.trim());
+    const trimmedValue = inputValue.trim();
+    if (trimmedValue) {
+      // Save to localStorage
+      setUsername(trimmedValue);
+      // Update local state immediately
+      setUsernameState(trimmedValue);
+      // Close dialog
       setShowUsernameInput(false);
     }
   };
 
+  // Update input field value as user types
   const handleUsernameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsernameState(e.target.value);
+    setInputValue(e.target.value);
   };
 
   if (!username) {
@@ -107,7 +118,7 @@ export default function UsernameDisplay() {
           <form onSubmit={handleUsernameSubmit}>
             <TextField
               fullWidth
-              value={username}
+              value={inputValue}
               onChange={handleUsernameChange}
               placeholder="Your name"
               autoFocus

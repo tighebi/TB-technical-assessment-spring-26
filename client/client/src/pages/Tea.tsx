@@ -1,7 +1,13 @@
 /**
- * Tea.tsx
- * ----------
- * Individual tea type page with information, quizzes, and comments
+ * Tea Page Component
+ * 
+ * Main page component for displaying individual tea type information.
+ * Features:
+ * - Displays tea information (origin, flavor, processing, health benefits, etc.)
+ * - Shows interactive quizzes with voting functionality
+ * - Includes comment section for user feedback
+ * - Handles scroll-based animations for content sections
+ * - Manages navigation between different tea types
  */
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState, useLayoutEffect, useRef } from 'react';
@@ -61,10 +67,10 @@ const teaData: Record<string, TeaData> = {
       {
         question: 'What makes white tea unique in terms of processing?',
         options: [
-          { text: 'It undergoes full oxidation', isCorrect: false },
+          { text: 'It undergoes full oxidation process', isCorrect: false },
           { text: 'It has minimal processing - just withered and dried', isCorrect: true },
-          { text: 'It is heavily roasted', isCorrect: false },
-          { text: 'It is fermented like pu-erh', isCorrect: false }
+          { text: 'It is heavily roasted during processing', isCorrect: false },
+          { text: 'It is fermented like pu-erh tea', isCorrect: false }
         ],
         explanation: 'White tea undergoes minimal processing - the leaves are simply withered and dried without rolling, oxidation, or firing. This preserves the natural antioxidants and delicate flavors.'
       },
@@ -104,10 +110,10 @@ const teaData: Record<string, TeaData> = {
       {
         question: 'What makes yellow tea different from green tea?',
         options: [
-          { text: 'It is fully oxidized', isCorrect: false },
+          { text: 'It is fully oxidized during processing', isCorrect: false },
           { text: 'It undergoes a "sealed yellowing" step', isCorrect: true },
-          { text: 'It is fermented', isCorrect: false },
-          { text: 'It is roasted longer', isCorrect: false }
+          { text: 'It is fermented like pu-erh tea', isCorrect: false },
+          { text: 'It is roasted longer than green tea', isCorrect: false }
         ],
         explanation: 'Yellow tea is processed like green tea but includes an additional "sealed yellowing" step where leaves are wrapped and allowed to yellow slightly, removing the grassy taste.'
       }
@@ -137,20 +143,20 @@ const teaData: Record<string, TeaData> = {
       {
         question: 'What is the key difference between Chinese and Japanese green tea processing?',
         options: [
-          { text: 'Chinese teas are fermented', isCorrect: false },
+          { text: 'Chinese teas are fermented during processing', isCorrect: false },
           { text: 'Chinese teas are pan-fired, Japanese are steamed', isCorrect: true },
-          { text: 'Japanese teas are oxidized', isCorrect: false },
-          { text: 'There is no difference', isCorrect: false }
+          { text: 'Japanese teas are fully oxidized', isCorrect: false },
+          { text: 'There is no processing difference', isCorrect: false }
         ],
         explanation: 'Chinese green teas are typically pan-fired or roasted to stop oxidation, while Japanese green teas are steamed, which gives them a more vegetal, umami flavor.'
       },
       {
         question: 'What powerful antioxidant is green tea particularly rich in?',
         options: [
-          { text: 'Vitamin C', isCorrect: false },
+          { text: 'Vitamin C antioxidant', isCorrect: false },
           { text: 'EGCG (epigallocatechin gallate)', isCorrect: true },
-          { text: 'Caffeine', isCorrect: false },
-          { text: 'Tannins', isCorrect: false }
+          { text: 'Caffeine compound', isCorrect: false },
+          { text: 'Tannins compound', isCorrect: false }
         ],
         explanation: 'Green tea is particularly rich in EGCG (epigallocatechin gallate), a powerful antioxidant that has been studied for its potential health benefits.'
       }
@@ -190,10 +196,10 @@ const teaData: Record<string, TeaData> = {
       {
         question: 'What is the oxidation level range for oolong tea?',
         options: [
-          { text: '0-10%', isCorrect: false },
-          { text: '10-80%', isCorrect: true },
-          { text: '80-100%', isCorrect: false },
-          { text: '100%', isCorrect: false }
+          { text: '0-10% oxidation level', isCorrect: false },
+          { text: '10-80% oxidation level', isCorrect: true },
+          { text: '80-100% oxidation level', isCorrect: false },
+          { text: '100% full oxidation', isCorrect: false }
         ],
         explanation: 'Oolong tea is partially oxidized, with levels ranging from 10% (light oolong, closer to green tea) to 80% (dark oolong, closer to black tea).'
       }
@@ -226,7 +232,7 @@ const teaData: Record<string, TeaData> = {
           { text: '0% (no oxidation)', isCorrect: false },
           { text: '50% (partial oxidation)', isCorrect: false },
           { text: '100% (fully oxidized)', isCorrect: true },
-          { text: 'It varies', isCorrect: false }
+          { text: 'It varies by region', isCorrect: false }
         ],
         explanation: 'Black tea is fully oxidized (100%), which gives it its dark color, bold flavor, and robust character.'
       },
@@ -267,8 +273,8 @@ const teaData: Record<string, TeaData> = {
         question: 'What makes pu-erh tea unique?',
         options: [
           { text: 'It is the only tea that improves with age', isCorrect: true },
-          { text: 'It is the most caffeinated tea', isCorrect: false },
-          { text: 'It is always green in color', isCorrect: false },
+          { text: 'It is the most caffeinated tea type', isCorrect: false },
+          { text: 'It is always green in color when brewed', isCorrect: false },
           { text: 'It cannot be steeped multiple times', isCorrect: false }
         ],
         explanation: 'Pu-erh tea is unique because it is post-fermented and actually improves with age, developing more complex flavors over time, sometimes for decades or even centuries.'
@@ -276,10 +282,10 @@ const teaData: Record<string, TeaData> = {
       {
         question: 'What are the two main types of pu-erh?',
         options: [
-          { text: 'Light and dark', isCorrect: false },
+          { text: 'Light and dark pu-erh', isCorrect: false },
           { text: 'Raw (sheng) and ripe (shou)', isCorrect: true },
-          { text: 'Young and old', isCorrect: false },
-          { text: 'Sweet and bitter', isCorrect: false }
+          { text: 'Young and old pu-erh', isCorrect: false },
+          { text: 'Sweet and bitter pu-erh', isCorrect: false }
         ],
         explanation: 'Pu-erh comes in two main types: raw (sheng) which is naturally aged, and ripe (shou) which is artificially fermented to speed up the aging process.'
       }
@@ -302,16 +308,43 @@ const allTeaTypes = [
 const iOS = typeof navigator !== 'undefined' && /iPad|iPhone|iPod/.test(navigator.userAgent);
 
 export default function Tea() {
+  // Get tea type from URL parameters
   const { teaType } = useParams<{ teaType: string }>();
   const navigate = useNavigate();
+  
+  // Get tea data for the current tea type, or null if tea type doesn't exist
   const tea = teaType ? teaData[teaType] : null;
+  
+  // State for ripple animation effects on background clicks
   const [ripples, setRipples] = useState<Ripple[]>([]);
+  
+  // Visibility states for scroll-based animations
+  // These control when sections slide into view as user scrolls
   const [firstQuizVisible, setFirstQuizVisible] = useState(false);
   const [secondQuizVisible, setSecondQuizVisible] = useState(false);
+  const [originVisible, setOriginVisible] = useState(false);
+  const [flavorVisible, setFlavorVisible] = useState(false);
+  const [processingVisible, setProcessingVisible] = useState(false);
+  const [healthVisible, setHealthVisible] = useState(false);
+  const [brewingVisible, setBrewingVisible] = useState(false);
+  const [funFactsVisible, setFunFactsVisible] = useState(false);
+  
+  // Refs for DOM elements that need scroll-based animations
+  // IntersectionObserver will watch these elements and update visibility states
   const firstQuizRef = useRef<HTMLDivElement>(null);
   const secondQuizRef = useRef<HTMLDivElement>(null);
+  const originRef = useRef<HTMLDivElement>(null);
+  const flavorRef = useRef<HTMLDivElement>(null);
+  const processingRef = useRef<HTMLDivElement>(null);
+  const healthRef = useRef<HTMLDivElement>(null);
+  const brewingRef = useRef<HTMLDivElement>(null);
+  const funFactsRef = useRef<HTMLDivElement>(null);
+  
+  // State for mobile navigation drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Reset scroll position to top when tea type changes
+  // This ensures users start at the top of the page when navigating between tea types
   useLayoutEffect(() => {
     const originalScrollBehavior = document.documentElement.style.scrollBehavior;
     document.documentElement.style.scrollBehavior = 'auto';
@@ -323,52 +356,65 @@ export default function Tea() {
     });
   }, [teaType]);
 
+  // Reset all visibility states when tea type changes
+  // This ensures animations retrigger when navigating to a different tea page
   useEffect(() => {
     setFirstQuizVisible(false);
     setSecondQuizVisible(false);
+    setOriginVisible(false);
+    setFlavorVisible(false);
+    setProcessingVisible(false);
+    setHealthVisible(false);
+    setBrewingVisible(false);
+    setFunFactsVisible(false);
   }, [teaType]);
 
   useEffect(() => {
-    // Intersection Observer watches when elements enter/leave viewport
-    // More efficient than constantly checking scroll position
+    // IntersectionObserver tracks when elements enter or leave the viewport
+    // This is more efficient than constantly checking scroll position
+    // Threshold of 0.2 means animation triggers when 20% of element is visible
     const observerOptions = {
-      threshold: 0.2, // Trigger when 20% of element is visible
-      rootMargin: '0px' // No margin around viewport
+      threshold: 0.2,
+      rootMargin: '0px'
     };
+
+    // Create a map of DOM elements to their visibility setters
+    const elementSetterMap = new Map<HTMLElement, (value: boolean) => void>();
+    
+    // Build the map from refs to setters
+    const refs = [
+      { ref: firstQuizRef, setter: setFirstQuizVisible },
+      { ref: secondQuizRef, setter: setSecondQuizVisible },
+      { ref: originRef, setter: setOriginVisible },
+      { ref: flavorRef, setter: setFlavorVisible },
+      { ref: processingRef, setter: setProcessingVisible },
+      { ref: healthRef, setter: setHealthVisible },
+      { ref: brewingRef, setter: setBrewingVisible },
+      { ref: funFactsRef, setter: setFunFactsVisible }
+    ];
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          // Element is now visible - trigger slide-in animation
-          if (entry.target === firstQuizRef.current) {
-            setFirstQuizVisible(true);
-          } else if (entry.target === secondQuizRef.current) {
-            setSecondQuizVisible(true);
-          }
-        } else {
-          // Element is no longer visible - trigger slide-out animation
-          if (entry.target === firstQuizRef.current) {
-            setFirstQuizVisible(false);
-          } else if (entry.target === secondQuizRef.current) {
-            setSecondQuizVisible(false);
-          }
+        const setter = elementSetterMap.get(entry.target as HTMLElement);
+        if (setter) {
+          setter(entry.isIntersecting);
         }
       });
     }, observerOptions);
 
-    // Start watching the quiz elements (only if refs are attached)
-    if (firstQuizRef.current) {
-      observer.observe(firstQuizRef.current);
-    }
-    if (secondQuizRef.current) {
-      observer.observe(secondQuizRef.current);
-    }
+    // Observe all refs and map them to their setters
+    refs.forEach(({ ref, setter }) => {
+      if (ref.current) {
+        elementSetterMap.set(ref.current, setter);
+        observer.observe(ref.current);
+      }
+    });
 
-    // Cleanup: stop observing when component unmounts or tea changes
+    // Cleanup: disconnect observer when component unmounts or tea changes
     return () => {
       observer.disconnect();
     };
-  }, [tea]); // Re-run when tea data changes
+  }, [tea]);
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
     const x = e.pageX;
@@ -673,6 +719,18 @@ export default function Tea() {
           secondQuizRef={secondQuizRef}
           firstQuizVisible={firstQuizVisible}
           secondQuizVisible={secondQuizVisible}
+          originRef={originRef}
+          flavorRef={flavorRef}
+          processingRef={processingRef}
+          healthRef={healthRef}
+          brewingRef={brewingRef}
+          funFactsRef={funFactsRef}
+          originVisible={originVisible}
+          flavorVisible={flavorVisible}
+          processingVisible={processingVisible}
+          healthVisible={healthVisible}
+          brewingVisible={brewingVisible}
+          funFactsVisible={funFactsVisible}
           QuizComponent={Quiz}
           CommentsComponent={Comments}
         />
