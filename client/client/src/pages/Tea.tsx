@@ -58,7 +58,7 @@ const teaData: Record<string, TeaData> = {
         question: 'What makes white tea unique in terms of processing?',
         options: [
           { text: 'It undergoes full oxidation process', isCorrect: false },
-          { text: 'It has minimal processing - just withered and dried', isCorrect: true },
+          { text: 'It has minimal processing, just withered and dried', isCorrect: true },
           { text: 'It is heavily roasted during processing', isCorrect: false },
           { text: 'It is fermented like pu-erh tea', isCorrect: false }
         ],
@@ -69,7 +69,7 @@ const teaData: Record<string, TeaData> = {
         options: [
           { text: 'Japan', isCorrect: false },
           { text: 'India', isCorrect: false },
-          { text: 'Fujian Province, China', isCorrect: true },
+          { text: 'China', isCorrect: true },
           { text: 'Sri Lanka', isCorrect: false }
         ],
         explanation: 'White tea originated in Fujian Province, China, specifically in Fuding and Zhenghe counties during the Song Dynasty.'
@@ -144,7 +144,7 @@ const teaData: Record<string, TeaData> = {
         question: 'What powerful antioxidant is green tea particularly rich in?',
         options: [
           { text: 'Vitamin C antioxidant', isCorrect: false },
-          { text: 'EGCG (epigallocatechin gallate)', isCorrect: true },
+          { text: 'Epigallocatechin Gallate', isCorrect: true },
           { text: 'Caffeine compound', isCorrect: false },
           { text: 'Tannins compound', isCorrect: false }
         ],
@@ -230,7 +230,7 @@ const teaData: Record<string, TeaData> = {
         question: 'What is black tea called in China?',
         options: [
           { text: 'Black tea', isCorrect: false },
-          { text: 'Red tea (hong cha)', isCorrect: true },
+          { text: 'Red tea', isCorrect: true },
           { text: 'Dark tea', isCorrect: false },
           { text: 'Bold tea', isCorrect: false }
         ],
@@ -273,7 +273,7 @@ const teaData: Record<string, TeaData> = {
         question: 'What are the two main types of pu-erh?',
         options: [
           { text: 'Light and dark pu-erh', isCorrect: false },
-          { text: 'Raw (sheng) and ripe (shou)', isCorrect: true },
+          { text: 'Raw and ripe pu-erh', isCorrect: true },
           { text: 'Young and old pu-erh', isCorrect: false },
           { text: 'Sweet and bitter pu-erh', isCorrect: false }
         ],
