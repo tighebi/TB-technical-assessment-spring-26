@@ -18,7 +18,7 @@ Please check off which features you have implemented:
 - [X] Deploy the frontend and backend if you can using some of the free deployment tools we talked about in the workshops!
 
 ## Screen Recording 
-**Link**: [paste it here]
+**Link**: https://drive.google.com/file/d/1Sn5sdEZns9dYVW2OC8LWPxB1_tjqftTW/view?usp=sharing
 
 Website Link: https://tb-technical-assessment-spring-26-x.vercel.app/
 
