@@ -13,7 +13,7 @@ app.use(cors({
   origin: [
     "http://localhost:5173",
     "https://h4i-spring-26-tea-backend.onrender.com",
-    "https://tb-technical-assessment-spring-26-6.vercel.app"
+    "https://tb-technical-assessment-spring-26-x.vercel.app"
   ],
   credentials: true
 }));
