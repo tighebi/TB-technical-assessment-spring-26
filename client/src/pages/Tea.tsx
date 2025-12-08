@@ -373,14 +373,31 @@ export default function Tea() {
   }, [tea]);
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
+    const target = e.target as HTMLElement;
+    // Don't create ripples when clicking on interactive elements
+    if (
+      target.closest('.page-flip-corner') ||
+      target.closest('.corner-arrow') ||
+      target.closest('.menu-page-flip') ||
+      target.closest('.menu-flip-arrow') ||
+      target.closest('.MuiButtonBase-root') || // Covers MUI buttons
+      target.closest('.MuiListItemButton-root') || // Covers MUI list items
+      target.classList.contains('page-flip-corner') ||
+      target.classList.contains('corner-arrow') ||
+      target.classList.contains('menu-page-flip') ||
+      target.classList.contains('menu-flip-arrow')
+    ) {
+      return;
+    }
+    
     createRipples(
       e.pageX,
       e.pageY,
       (ripple) => setRipples(prev => [...prev, ripple]),
       (id) => setRipples(prev => prev.filter(ripple => ripple.id !== id)),
-      1, // Create 1 ripple
-      0, // No stagger
-      1000 // Duration 1000ms
+      2, // Create 2 ripples
+      250, // Stagger by 250ms
+      2000 // Duration 2000ms
     );
   };
 
