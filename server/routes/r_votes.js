@@ -3,10 +3,6 @@ const express = require('express');
 const router = express.Router();
 const Vote = require('../models/Vote');
 
-if (!Vote || typeof Vote !== 'function') {
-  console.error('Error: Vote model is not a constructor. Got:', typeof Vote, Vote);
-}
-
 router.get('/:questionId', async (req, res) => {
   try {
     const votes = await Vote.find({ questionId: req.params.questionId });

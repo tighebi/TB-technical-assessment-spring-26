@@ -7,14 +7,10 @@ import Quiz from '../components/Quiz';
 import Comments from '../components/Comments';
 import TeaLayouts from './TeaLayouts';
 import UsernameDisplay from '../components/UsernameDisplay';
+import { smoothScrollToElement } from '../utils/scroll';
+import { createRipples, type Ripple } from '../utils/ripple';
 import './Home.css';
 import './Tea.css';
-
-interface Ripple {
-  x: number;
-  y: number;
-  id: number;
-}
 
 interface TeaData {
   name: string;
@@ -377,15 +373,15 @@ export default function Tea() {
   }, [tea]);
 
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
-    const x = e.pageX;
-    const y = e.pageY;
-    const id = Date.now();
-    
-    setRipples(prev => [...prev, { x, y, id }]);
-    
-    setTimeout(() => {
-      setRipples(prev => prev.filter(ripple => ripple.id !== id));
-    }, 1000);
+    createRipples(
+      e.pageX,
+      e.pageY,
+      (ripple) => setRipples(prev => [...prev, ripple]),
+      (id) => setRipples(prev => prev.filter(ripple => ripple.id !== id)),
+      1, // Create 1 ripple
+      0, // No stagger
+      1000 // Duration 1000ms
+    );
   };
 
   if (!tea) {
@@ -393,11 +389,11 @@ export default function Tea() {
       <div style={{ padding: '2rem', textAlign: 'center' }}>
         <h1>Tea Type Not Found</h1>
         <button onClick={() => {
-          navigate('/#brochure');
+          navigate('/#menu');
           setTimeout(() => {
-            const brochureElement = document.getElementById('brochure');
-            if (brochureElement) {
-              brochureElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const menuElement = document.getElementById('menu');
+            if (menuElement) {
+              smoothScrollToElement(menuElement);
             }
           }, 100);
         }}>Return Home</button>
@@ -427,12 +423,12 @@ export default function Tea() {
       <Box
         component="button"
         onClick={() => {
-          navigate('/#brochure');
+          navigate('/#menu');
           // Small delay to ensure navigation completes before scrolling
           setTimeout(() => {
-            const brochureElement = document.getElementById('brochure');
-            if (brochureElement) {
-              brochureElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const menuElement = document.getElementById('menu');
+            if (menuElement) {
+              smoothScrollToElement(menuElement);
             }
           }, 100);
         }}
@@ -671,7 +667,7 @@ export default function Tea() {
         </div>
       </section>
 
-      <section className="brochure-zone" style={{ padding: '4rem 2rem', background: 'transparent' }}>
+      <section className="menu-zone" style={{ padding: '4rem 2rem', background: 'transparent' }}>
         <TeaLayouts
           tea={tea}
           teaType={teaType || 'unknown'}

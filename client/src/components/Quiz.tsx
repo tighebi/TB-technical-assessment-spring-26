@@ -90,22 +90,27 @@ export default function Quiz({ question, options, explanation, questionId, theme
   });
   const [userVote, setUserVote] = useState<number | null>(null);
 
+  // Helper function to aggregate votes by option
+  const aggregateVotes = (voteData: any[]): Record<number, { count: number; users: string[] }> => {
+    const aggregated: Record<number, { count: number; users: string[] }> = {};
+    options.forEach((_, index) => {
+      const optionLetter = String.fromCharCode(65 + index);
+      const optionVotes = voteData.filter((v: any) => v.selectedOption === optionLetter);
+      aggregated[index] = {
+        count: optionVotes.length,
+        users: optionVotes.map((v: any) => v.userName)
+      };
+    });
+    return aggregated;
+  };
+
   useEffect(() => {
     const fetchVotes = async () => {
       try {
         const response = await fetch(`${API_BASE}/api/votes/${questionId}`);
         if (response.ok) {
           const voteData = await response.json();
-          const aggregated: Record<number, { count: number; users: string[] }> = {};
-          options.forEach((_, index) => {
-            const optionLetter = String.fromCharCode(65 + index);
-            const optionVotes = voteData.filter((v: any) => v.selectedOption === optionLetter);
-            aggregated[index] = {
-              count: optionVotes.length,
-              users: optionVotes.map((v: any) => v.userName)
-            };
-          });
-          setVotes(aggregated);
+          setVotes(aggregateVotes(voteData));
         }
       } catch (err) {
         console.error("Error fetching votes:", err);
@@ -122,12 +127,10 @@ export default function Quiz({ question, options, explanation, questionId, theme
     let currentUserName = getUsername();
     if (!currentUserName.trim()) {
       const name = prompt('Please enter your name to vote:') || 'Anonymous';
-      if (name && name !== 'Anonymous') {
+      if (name !== 'Anonymous') {
         setUsername(name);
-        currentUserName = name;
-      } else {
-        currentUserName = name;
       }
+      currentUserName = name;
     }
 
     const optionLetter = String.fromCharCode(65 + index); // Convert index to letter: 0->A, 1->B, etc.
@@ -148,16 +151,7 @@ export default function Quiz({ question, options, explanation, questionId, theme
         const voteResponse = await fetch(`${API_BASE}/api/votes/${questionId}`);
         if (voteResponse.ok) {
           const voteData = await voteResponse.json();
-          const aggregated: Record<number, { count: number; users: string[] }> = {};
-          options.forEach((_, idx) => {
-            const optLetter = String.fromCharCode(65 + idx);
-            const optionVotes = voteData.filter((v: any) => v.selectedOption === optLetter);
-            aggregated[idx] = {
-              count: optionVotes.length,
-              users: optionVotes.map((v: any) => v.userName)
-            };
-          });
-          setVotes(aggregated);
+          setVotes(aggregateVotes(voteData));
         }
         setUserVote(index);
         setSelectedOption(index);

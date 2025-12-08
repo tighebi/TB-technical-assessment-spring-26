@@ -522,7 +522,7 @@ export default function TeaLayouts({
       {/* Comments Section */}
       <Divider sx={{ my: 4, borderColor: theme.borderColor }} />
       <Box sx={{ maxWidth: '900px', mx: 'auto' }}>
-        <CommentsComponent pageId={teaType} />
+        <CommentsComponent teaType={teaType} />
       </Box>
     </Container>
   );

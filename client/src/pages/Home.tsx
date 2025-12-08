@@ -3,10 +3,9 @@
  * ----------
  * Tea Education - IdeaCon Stand
  * - Top section: Welcome to the Tea Education showcase
- * - Bottom section: Interactive brochure with tea highlights and types
+ * - Bottom section: Interactive menu with tea highlights and types
  */
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import {
   Typography,
   Box,
@@ -20,11 +19,14 @@ import {
   CheckCircle
 } from '@mui/icons-material';
 import { getUsername, setUsername } from '../utils/username';
+import { smoothScrollToElement } from '../utils/scroll';
+import { createRipples, type Ripple } from '../utils/ripple';
 import UsernameDisplay from '../components/UsernameDisplay';
+import TeaCard from '../components/TeaCard';
 import './Home.css';
 
 /**
- * Tea highlights for the brochure's front side (3 teas)
+ * Tea highlights for the menu's front side (3 teas)
  */
 const teaHighlights = [
   {
@@ -45,7 +47,7 @@ const teaHighlights = [
 ];
 
 /**
- * Tea types for the brochure's back side (3 teas)
+ * Tea types for the menu's back side (3 teas)
  */
 const teaTypes = [
   {
@@ -65,14 +67,8 @@ const teaTypes = [
   },
 ];
 
-interface Ripple {
-  x: number;
-  y: number;
-  id: number;
-}
 
 export default function Home() {
-  const navigate = useNavigate();
   const [scrollY, setScrollY] = useState(0);
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const [username, setUsernameState] = useState(() => getUsername());
@@ -96,39 +92,28 @@ export default function Home() {
   
   const getColumnContent = (position: number, side: 'left' | 'right', isBack: boolean) => {
     // When a column flips, the back face shows the NEXT sequential column's content
-    // This creates the illusion of turning a real book page
     if (isBack && isFlipping && flippingColumn === side) {
-      if (flippingColumn === 'right') {
-        // Right column flipping forward: position 0 -> tea index 1, position 1 -> tea index 3, etc.
-        const currentTeaIndex = position * 2 + 1; // Formula: right column = odd indices (1, 3, 5)
-        const nextTeaIndex = currentTeaIndex + 1; // Next tea in sequence
-        if (nextTeaIndex < allTeas.length) {
-          return allTeas[nextTeaIndex];
-        }
-        return null;
-      } else if (flippingColumn === 'left') {
-        // Left column flipping backward: position 1 -> tea index 2, position 2 -> tea index 4, etc.
-        const currentTeaIndex = position * 2; // Formula: left column = even indices (0, 2, 4)
-        const prevTeaIndex = currentTeaIndex - 1; // Previous tea in sequence
-        if (prevTeaIndex >= 0) {
-          return allTeas[prevTeaIndex];
-        }
-        return null;
+      const currentTeaIndex = side === 'left' ? position * 2 : position * 2 + 1;
+      const targetIndex = flippingColumn === 'right' ? currentTeaIndex + 1 : currentTeaIndex - 1;
+      if (targetIndex >= 0 && targetIndex < allTeas.length) {
+        return allTeas[targetIndex];
       }
+      return null;
     }
     // Front face: show normal page content
-    // Left column uses even indices (0, 2, 4), right column uses odd indices (1, 3, 5)
-    if (side === 'left') {
-      return allTeas[position * 2]; // Even: 0, 2, 4
-    } else {
-      return allTeas[position * 2 + 1]; // Odd: 1, 3, 5
-    }
+    const teaIndex = side === 'left' ? position * 2 : position * 2 + 1;
+    return allTeas[teaIndex] || null;
   };
   
   const [flippingColumn, setFlippingColumn] = useState<'left' | 'right' | null>(null);
   
   const isColumnFlipped = (side: 'left' | 'right') => {
     return isFlipping && flippingColumn === side;
+  };
+
+  // Helper to check if underneath column should be visible
+  const isUnderneathVisible = () => {
+    return isFlipping && flippingColumn !== null;
   };
   
   const flipColumn = (side: 'left' | 'right') => {
@@ -168,54 +153,15 @@ export default function Home() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Check if we should scroll to brochure section on mount (e.g., when navigating from Tea page)
+  // Check if we should scroll to menu section on mount (e.g., when navigating from Tea page)
   useEffect(() => {
-    // Check if URL has #brochure hash
-    if (window.location.hash === '#brochure') {
-      // Small delay to ensure page is rendered
+    if (window.location.hash === '#menu') {
       setTimeout(() => {
-        const brochureElement = document.getElementById('brochure');
-        if (brochureElement) {
-          const startPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
-          const elementRect = brochureElement.getBoundingClientRect();
-          const targetPosition = startPosition + elementRect.top;
-          
-          const duration = 800;
-          // @ts-expect-error - animationFrameId is used for cleanup but TypeScript doesn't detect it
-          let _animationFrameId: number | null = null;
-          let isAnimating = true;
-          const startTime = performance.now();
-
-          const animate = (timestamp: number) => {
-            if (!isAnimating) return;
-
-            const elapsed = timestamp - startTime;
-            let progress = Math.min(elapsed / duration, 1);
-            
-            const easeInOutCubic = progress < 0.5
-              ? 4 * progress * progress * progress
-              : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-            
-            const currentPosition = startPosition + ((targetPosition - startPosition) * easeInOutCubic);
-            window.scrollTo({
-              top: currentPosition,
-              behavior: 'auto'
-            });
-
-            if (progress < 1) {
-              _animationFrameId = requestAnimationFrame(animate);
-            } else {
-              window.scrollTo({
-                top: targetPosition,
-                behavior: 'auto'
-              });
-              isAnimating = false;
-              // Clear hash after scrolling
-              window.history.replaceState(null, '', window.location.pathname);
-            }
-          };
-
-          _animationFrameId = requestAnimationFrame(animate);
+        const menuElement = document.getElementById('menu');
+        if (menuElement) {
+          smoothScrollToElement(menuElement, 800, () => {
+            window.history.replaceState(null, '', window.location.pathname);
+          });
         }
       }, 100);
     }
@@ -267,7 +213,6 @@ export default function Home() {
   const handleBackgroundClick = (e: React.MouseEvent<HTMLElement>) => {
     const target = e.target as HTMLElement;
     // Don't create ripples when clicking on page flip buttons
-    // Check both the clicked element and its parent elements (closest)
     if (
       target.closest('.page-flip-corner') ||
       target.closest('.corner-arrow') ||
@@ -280,26 +225,16 @@ export default function Home() {
     ) {
       return;
     }
-    // Get click coordinates relative to document (not viewport)
-    const x = e.pageX;
-    const y = e.pageY;
-    // Use timestamp as base ID to ensure uniqueness
-    const baseId = Date.now();
     
-    // Create 2 ripples with staggered timing for layered effect
-    for (let i = 0; i < 2; i++) {
-      const id = baseId + i; // Unique ID for each ripple
-      // Stagger each ripple by 250ms (0ms, 250ms)
-      setTimeout(() => {
-        // Add ripple to state array (triggers CSS animation)
-        setRipples(prev => [...prev, { x, y, id }]);
-        
-        // Remove ripple after animation completes (2 seconds)
-        setTimeout(() => {
-          setRipples(prev => prev.filter(ripple => ripple.id !== id));
-        }, 2000);
-      }, i * 250);
-    }
+    createRipples(
+      e.pageX,
+      e.pageY,
+      (ripple) => setRipples(prev => [...prev, ripple]),
+      (id) => setRipples(prev => prev.filter(ripple => ripple.id !== id)),
+      2, // Create 2 ripples
+      250, // Stagger by 250ms
+      2000 // Duration 2000ms
+    );
   };
 
   // Fade-in calculation: opacity increases as user scrolls
@@ -320,11 +255,11 @@ export default function Home() {
     setUsernameState(e.target.value);
   };
 
-  const handleScrollToBrochure = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleScrollToMenu = (e: React.MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
-    const brochureElement = document.getElementById('brochure');
+    const menuElement = document.getElementById('menu');
     const standBoard = standBoardRef.current;
-    if (!brochureElement) return;
+    if (!menuElement) return;
 
     // Smooth Transitions: Add lift effect to the signboard
     setIsScrolling(true);
@@ -333,87 +268,21 @@ export default function Home() {
       standBoard.style.transform = 'perspective(1000px) translateY(-30px) scale(0.95)';
     }
 
-    // Get current scroll position (try multiple methods for browser compatibility)
-    const startPosition = window.pageYOffset || window.scrollY || document.documentElement.scrollTop;
-    // Get brochure's position relative to viewport (top of element to top of visible area)
-    const elementRect = brochureElement.getBoundingClientRect();
-    // Calculate absolute position on page: current scroll + distance from viewport top
-    const targetPosition = startPosition + elementRect.top;
-    // How many pixels we need to scroll
-    const distance = targetPosition - startPosition;
-    
-    if (Math.abs(distance) < 1) {
-      setIsScrolling(false);
-      if (standBoard) {
-        standBoard.style.transition = '';
-        standBoard.style.transform = '';
-      }
-      return;
-    }
-
-    const duration = 800; // Slightly longer for smoother feel
-    let _animationFrameId: number | null = null;
-    let isAnimating = true;
-
-    const startAnimation = () => {
-      const startTime = performance.now();
-
-      const animate = (timestamp: number) => {
-        if (!isAnimating) return;
-
-        const elapsed = timestamp - startTime;
-        // Calculate progress from 0 to 1 (clamped to prevent overshooting)
-        let progress = Math.min(elapsed / duration, 1);
-        
-        // Cubic easing function: creates smooth acceleration/deceleration curve
-        // First half: accelerates (4x^3), second half: decelerates (1 - (-2x+2)^3/2)
-        // This makes the scroll feel natural, not linear
-        const easeInOutCubic = progress < 0.5
-          ? 4 * progress * progress * progress
-          : 1 - Math.pow(-2 * progress + 2, 3) / 2;
-        
-        // Apply easing to distance: start + (total distance * eased progress)
-        const currentPosition = startPosition + (distance * easeInOutCubic);
-        window.scrollTo({
-          top: currentPosition,
-          behavior: 'auto' // Use 'auto' to prevent browser's smooth scroll from interfering
-        });
-
-        if (progress < 1) {
-          _animationFrameId = requestAnimationFrame(animate);
-        } else {
-          window.scrollTo({
-            top: targetPosition,
-            behavior: 'auto'
-          });
-          isAnimating = false;
-          _animationFrameId = null;
-          
-          // Reset lift effect after scroll completes
+    smoothScrollToElement(menuElement, 800, () => {
+      // Reset lift effect after scroll completes
+      setTimeout(() => {
+        setIsScrolling(false);
+        if (standBoard) {
+          standBoard.style.transition = 'transform 0.4s ease-out';
+          standBoard.style.transform = '';
           setTimeout(() => {
-            setIsScrolling(false);
             if (standBoard) {
-              standBoard.style.transition = 'transform 0.4s ease-out';
-              standBoard.style.transform = '';
-              setTimeout(() => {
-                if (standBoard) {
-                  standBoard.style.transition = '';
-                }
-              }, 400);
+              standBoard.style.transition = '';
             }
-          }, 200);
+          }, 400);
         }
-      };
-
-      // Start animation
-      _animationFrameId = requestAnimationFrame(animate);
-    };
-
-    if (_animationFrameId !== null) {
-      cancelAnimationFrame(_animationFrameId);
-    }
-
-    setTimeout(startAnimation, 150);
+      }, 200);
+    });
   };
 
   return (
@@ -510,14 +379,9 @@ export default function Home() {
       <section id="stand" className="stand-stage">
         {/* Dynamic Background: Floating tea leaves */}
         <div className="tea-leaves-container">
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
-          <div className="tea-leaf" />
+          {Array.from({ length: 8 }).map((_, i) => (
+            <div key={i} className="tea-leaf" />
+          ))}
         </div>
         <div className="stand-greeting unselectable">Welcome to Hack4Impact IdeaCon</div>
         <div className="stand-frame">
@@ -529,8 +393,8 @@ export default function Home() {
               <span>Your Tea Education Journey</span>
               <Box
                 component="a"
-                href="#brochure"
-                onClick={handleScrollToBrochure}
+                href="#menu"
+                onClick={handleScrollToMenu}
                 className="scroll-cta unselectable"
                 sx={{
                   display: 'inline-flex',
@@ -578,7 +442,7 @@ export default function Home() {
         </Typography>
       </section>
 
-      <section id="brochure" className="brochure-zone">
+      <section id="menu" className="menu-zone">
         <div className="menu-book-container">
           <div className="menu-book-border">
             {currentPosition > 0 && (
@@ -608,255 +472,35 @@ export default function Home() {
 
             <div className="menu-book-pages">
               <div className="menu-page base-layer">
-                <div className={`menu-page-column underneath ${((isFlipping && flippingColumn === 'right') || (isFlipping && flippingColumn === 'left')) ? 'visible' : 'hidden'}`}>
+                <div className={`menu-page-column underneath ${isUnderneathVisible() ? 'visible' : 'hidden'}`}>
                   {(() => {
                     if (flippingColumn === 'right') {
                       const nextPos = currentPosition + 1;
                       if (nextPos >= 3) return null;
                       const content = allTeas[nextPos * 2];
-                      if (!content) return null;
-                    return (
-                      <Box
-                        component="button"
-                        onClick={() => {
-                          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                          navigate(content.link);
-                        }}
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          padding: '2.5rem',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateX(4px)'
-                          }
-                        }}
-                      >
-                        <Box>
-                          <Typography 
-                            variant="h2"
-                            sx={{ 
-                              fontFamily: "'Playfair Display', serif",
-                              fontSize: '2.2rem',
-                              fontWeight: 700,
-                              color: 'var(--ink)',
-                              mb: 2,
-                              borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                              paddingBottom: '0.75rem',
-                              '&:hover': {
-                                color: 'rgba(201, 165, 112, 0.9)'
-                              }
-                            }}
-                          >
-                            {content.title}
-                          </Typography>
-                          <Typography 
-                            variant="body1"
-                            sx={{ 
-                              color: 'var(--ink)',
-                              lineHeight: 1.8,
-                              fontSize: '1.05rem'
-                            }}
-                          >
-                            {content.intro}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      );
+                      return content ? <TeaCard content={content} /> : null;
                     } else if (flippingColumn === 'left') {
                       const prevPos = currentPosition - 1;
                       if (prevPos < 0) return null;
                       const content = allTeas[prevPos * 2];
-                      if (!content) return null;
-                      return (
-                        <Box
-                          component="button"
-                          onClick={() => {
-                            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                            navigate(content.link);
-                          }}
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            padding: '2.5rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(4px)'
-                            }
-                          }}
-                        >
-                          <Box>
-                            <Typography 
-                              variant="h2"
-                              sx={{ 
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '2.2rem',
-                                fontWeight: 700,
-                                color: 'var(--ink)',
-                                mb: 2,
-                                borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                                paddingBottom: '0.75rem',
-                                '&:hover': {
-                                  color: 'rgba(201, 165, 112, 0.9)'
-                                }
-                              }}
-                            >
-                              {content.title}
-                            </Typography>
-                            <Typography 
-                              variant="body1"
-                              sx={{ 
-                                color: 'var(--ink)',
-                                lineHeight: 1.8,
-                                fontSize: '1.05rem'
-                              }}
-                            >
-                              {content.intro}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      );
+                      return content ? <TeaCard content={content} /> : null;
                     }
                     return null;
                   })()}
                 </div>
 
-                <div className={`menu-page-column underneath ${((isFlipping && flippingColumn === 'right') || (isFlipping && flippingColumn === 'left')) ? 'visible' : 'hidden'}`}>
+                <div className={`menu-page-column underneath ${isUnderneathVisible() ? 'visible' : 'hidden'}`}>
                   {(() => {
                     if (flippingColumn === 'right') {
                       const nextPos = currentPosition + 1;
                       if (nextPos >= 3) return null;
                       const content = allTeas[nextPos * 2 + 1];
-                      if (!content) return null;
-                      return (
-                        <Box
-                          component="button"
-                          onClick={() => {
-                            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                            navigate(content.link);
-                          }}
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            padding: '2.5rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(4px)'
-                            }
-                          }}
-                        >
-                          <Box>
-                            <Typography 
-                              variant="h2"
-                              sx={{ 
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '2.2rem',
-                                fontWeight: 700,
-                                color: 'var(--ink)',
-                                mb: 2,
-                                borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                                paddingBottom: '0.75rem',
-                                '&:hover': {
-                                  color: 'rgba(201, 165, 112, 0.9)'
-                                }
-                              }}
-                            >
-                              {content.title}
-                            </Typography>
-                            <Typography 
-                              variant="body1"
-                              sx={{ 
-                                color: 'var(--ink)',
-                                lineHeight: 1.8,
-                                fontSize: '1.05rem'
-                              }}
-                            >
-                              {content.intro}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      );
+                      return content ? <TeaCard content={content} /> : null;
                     } else if (flippingColumn === 'left') {
                       const prevPos = currentPosition - 1;
                       if (prevPos < 0) return null;
                       const content = allTeas[prevPos * 2 + 1];
-                      if (!content) return null;
-                      return (
-                      <Box
-                        component="button"
-                        onClick={() => {
-                          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                          navigate(content.link);
-                        }}
-                        sx={{
-                          width: '100%',
-                          height: '100%',
-                          background: 'transparent',
-                          border: 'none',
-                          cursor: 'pointer',
-                          textAlign: 'left',
-                          padding: '2.5rem',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          transition: 'all 0.3s ease',
-                          '&:hover': {
-                            transform: 'translateX(4px)'
-                          }
-                        }}
-                      >
-                        <Box>
-                          <Typography 
-                            variant="h2"
-                            sx={{ 
-                              fontFamily: "'Playfair Display', serif",
-                              fontSize: '2.2rem',
-                              fontWeight: 700,
-                              color: 'var(--ink)',
-                              mb: 2,
-                              borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                              paddingBottom: '0.75rem',
-                              '&:hover': {
-                                color: 'rgba(201, 165, 112, 0.9)'
-                              }
-                            }}
-                          >
-                            {content.title}
-                          </Typography>
-                          <Typography 
-                            variant="body1"
-                            sx={{ 
-                              color: 'var(--ink)',
-                              lineHeight: 1.8,
-                              fontSize: '1.05rem'
-                            }}
-                          >
-                            {content.intro}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    );
+                      return content ? <TeaCard content={content} /> : null;
                     }
                     return null;
                   })()}
@@ -868,145 +512,18 @@ export default function Home() {
                   <div className="column-face column-front">
                     {(() => {
                       const content = getColumnContent(currentPosition, 'left', false);
-                      if (!content) return null;
-                      return (
-                        <Box
-                          component="button"
-                          onClick={() => {
-                            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                            navigate(content.link);
-                          }}
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            padding: '2.5rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(4px)'
-                            }
-                          }}
-                        >
-                          <Box>
-                            <Typography 
-                              variant="h2"
-                              sx={{ 
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '2.2rem',
-                                fontWeight: 700,
-                                color: 'var(--ink)',
-                                mb: 2,
-                                borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                                paddingBottom: '0.75rem',
-                                '&:hover': {
-                                  color: 'rgba(201, 165, 112, 0.9)'
-                                }
-                              }}
-                            >
-                              {content.title}
-                            </Typography>
-                            <Typography 
-                              variant="body1"
-                              sx={{ 
-                                color: 'var(--ink)',
-                                lineHeight: 1.8,
-                                fontSize: '1.05rem'
-                              }}
-                            >
-                              {content.intro}
-                            </Typography>
-                          </Box>
-                          <Typography 
-                            variant="h4"
-                            sx={{
-                              fontFamily: "'Playfair Display', serif",
-                              fontSize: '2rem',
-                              fontWeight: 700,
-                              color: 'rgba(201, 165, 112, 0.7)',
-                              border: '3px solid rgba(201, 165, 112, 0.4)',
-                              borderRadius: '50%',
-                              width: '50px',
-                              height: '50px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              background: 'rgba(255, 255, 255, 0.6)',
-                              alignSelf: 'center',
-                              mt: 2
-                            }}
-                          >
-                            {currentPosition * 2 + 1}
-                          </Typography>
-                        </Box>
-                      );
+                      return content ? (
+                        <TeaCard 
+                          content={content} 
+                          showPageNumber={currentPosition * 2 + 1}
+                        />
+                      ) : null;
                     })()}
                   </div>
-                  {/* Back face */}
                   <div className="column-face column-back">
                     {(() => {
                       const content = getColumnContent(currentPosition, 'left', true);
-                      if (!content) return null;
-                      return (
-                        <Box
-                          component="button"
-                          onClick={() => {
-                            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                            navigate(content.link);
-                          }}
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            padding: '2.5rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(4px)'
-                            }
-                          }}
-                        >
-                          <Box>
-                            <Typography 
-                              variant="h2"
-                              sx={{ 
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '2.2rem',
-                                fontWeight: 700,
-                                color: 'var(--ink)',
-                                mb: 2,
-                                borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                                paddingBottom: '0.75rem',
-                                '&:hover': {
-                                  color: 'rgba(201, 165, 112, 0.9)'
-                                }
-                              }}
-                            >
-                              {content.title}
-                            </Typography>
-                            <Typography 
-                              variant="body1"
-                              sx={{ 
-                                color: 'var(--ink)',
-                                lineHeight: 1.8,
-                                fontSize: '1.05rem'
-                              }}
-                            >
-                              {content.intro}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      );
+                      return content ? <TeaCard content={content} /> : null;
                     })()}
                   </div>
                 </div>
@@ -1015,145 +532,18 @@ export default function Home() {
                   <div className="column-face column-front">
                     {(() => {
                       const content = getColumnContent(currentPosition, 'right', false);
-                      if (!content) return null;
-                      return (
-                        <Box
-                          component="button"
-                          onClick={() => {
-                            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                            navigate(content.link);
-                          }}
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            padding: '2.5rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(4px)'
-                            }
-                          }}
-                        >
-                          <Box>
-                            <Typography 
-                              variant="h2"
-                              sx={{ 
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '2.2rem',
-                                fontWeight: 700,
-                                color: 'var(--ink)',
-                                mb: 2,
-                                borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                                paddingBottom: '0.75rem',
-                                '&:hover': {
-                                  color: 'rgba(201, 165, 112, 0.9)'
-                                }
-                              }}
-                            >
-                              {content.title}
-                            </Typography>
-                            <Typography 
-                              variant="body1"
-                              sx={{ 
-                                color: 'var(--ink)',
-                                lineHeight: 1.8,
-                                fontSize: '1.05rem'
-                              }}
-                            >
-                              {content.intro}
-                            </Typography>
-                          </Box>
-                          <Typography 
-                            variant="h4"
-                            sx={{
-                              fontFamily: "'Playfair Display', serif",
-                              fontSize: '2rem',
-                              fontWeight: 700,
-                              color: 'rgba(201, 165, 112, 0.7)',
-                              border: '3px solid rgba(201, 165, 112, 0.4)',
-                              borderRadius: '50%',
-                              width: '50px',
-                              height: '50px',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              background: 'rgba(255, 255, 255, 0.6)',
-                              alignSelf: 'center',
-                              mt: 2
-                            }}
-                          >
-                            {currentPosition * 2 + 2}
-                          </Typography>
-                        </Box>
-                      );
+                      return content ? (
+                        <TeaCard 
+                          content={content} 
+                          showPageNumber={currentPosition * 2 + 2}
+                        />
+                      ) : null;
                     })()}
                   </div>
-                  {/* Back face */}
                   <div className="column-face column-back">
                     {(() => {
                       const content = getColumnContent(currentPosition, 'right', true);
-                      if (!content) return null;
-                      return (
-                        <Box
-                          component="button"
-                          onClick={() => {
-                            window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-                            navigate(content.link);
-                          }}
-                          sx={{
-                            width: '100%',
-                            height: '100%',
-                            background: 'transparent',
-                            border: 'none',
-                            cursor: 'pointer',
-                            textAlign: 'left',
-                            padding: '2.5rem',
-                            display: 'flex',
-                            flexDirection: 'column',
-                            justifyContent: 'space-between',
-                            transition: 'all 0.3s ease',
-                            '&:hover': {
-                              transform: 'translateX(4px)'
-                            }
-                          }}
-                        >
-                          <Box>
-                            <Typography 
-                              variant="h2"
-                              sx={{ 
-                                fontFamily: "'Playfair Display', serif",
-                                fontSize: '2.2rem',
-                                fontWeight: 700,
-                                color: 'var(--ink)',
-                                mb: 2,
-                                borderBottom: '3px solid rgba(201, 165, 112, 0.5)',
-                                paddingBottom: '0.75rem',
-                                '&:hover': {
-                                  color: 'rgba(201, 165, 112, 0.9)'
-                                }
-                              }}
-                            >
-                              {content.title}
-                            </Typography>
-                            <Typography 
-                              variant="body1"
-                              sx={{ 
-                                color: 'var(--ink)',
-                                lineHeight: 1.8,
-                                fontSize: '1.05rem'
-                              }}
-                            >
-                              {content.intro}
-                            </Typography>
-                          </Box>
-                        </Box>
-                      );
+                      return content ? <TeaCard content={content} /> : null;
                     })()}
                   </div>
                 </div>

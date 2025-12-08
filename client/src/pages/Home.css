@@ -1,4 +1,4 @@
-/* Home.css - custom stage + brochure styling */
+/* Home.css - custom stage + menu styling */
 @keyframes sway {
   0% {
     transform: rotate(-0.7deg);
@@ -536,8 +536,8 @@ textarea,
   text-shadow: 0 2px 4px rgba(255, 255, 255, 0.6);
 }
 
-/* ---------- Menu-style Brochure + book flip mechanism - Zen-inspired section ---------- */
-.brochure-zone {
+/* ---------- Menu-style Menu + book flip mechanism - Zen-inspired section ---------- */
+.menu-zone {
   padding: 6rem 0 3rem;
   display: flex;
   justify-content: center;
@@ -558,7 +558,7 @@ textarea,
   z-index: 2;
 }
 
-.brochure-zone::before {
+.menu-zone::before {
   content: '';
   position: absolute;
   top: 0;
@@ -919,7 +919,7 @@ textarea,
   border-left: 1px solid rgba(201, 165, 112, 0.2);
 }
 
-/* Page flip corner button - integrated into brochure */
+/* Page flip corner button - integrated into menu */
 .page-flip-corner {
   position: absolute;
   width: 100px;
@@ -1020,7 +1020,7 @@ textarea,
   transform: scale(1.15) translate(3px, 0);
 }
 
-.brochure {
+.menu {
   position: relative;
   width: 100%;
   height: 100%;
@@ -1029,12 +1029,12 @@ textarea,
   transform-origin: center center;
 }
 
-.brochure.flipped {
+.menu.flipped {
   transform: rotateY(180deg);
   transform-origin: center center;
 }
 
-.brochure-side {
+.menu-side {
   position: absolute;
   width: 100%;
   height: 100%;
@@ -1051,7 +1051,7 @@ textarea,
   border: 2px solid rgba(255, 255, 255, 0.2);
 }
 
-.brochure-side::before {
+.menu-side::before {
   content: '';
   position: absolute;
   top: 0;
@@ -1068,7 +1068,7 @@ textarea,
   z-index: 1;
 }
 
-.brochure-side::after {
+.menu-side::after {
   content: '';
   position: absolute;
   left: 3rem;
@@ -1091,17 +1091,17 @@ textarea,
       transparent calc(66.66% + 1px));
 }
 
-.brochure-side.front {
+.menu-side.front {
   background: linear-gradient(180deg, #f8ead0 0%, #f5e3c8 100%);
   transform: rotateY(0deg);
 }
 
-.brochure-side.back {
+.menu-side.back {
   background: linear-gradient(180deg, #f8ead0 0%, #f5e3c8 100%);
   transform: rotateY(180deg);
 }
 
-.brochure-header {
+.menu-header {
   text-align: center;
   margin-bottom: 2.5rem;
   color: var(--ink);
@@ -1111,7 +1111,7 @@ textarea,
 }
 
 /* Decorative line under header */
-.brochure-header::after {
+.menu-header::after {
   content: '';
   position: absolute;
   bottom: -1rem;
@@ -1130,14 +1130,14 @@ textarea,
   border-radius: 2px;
 }
 
-.brochure-header p {
+.menu-header p {
   letter-spacing: 0.5em;
   text-transform: uppercase;
   font-size: 0.85rem;
   margin-bottom: 0.5rem;
 }
 
-.brochure-header h2 {
+.menu-header h2 {
   font-family: 'Playfair Display', serif;
   font-size: clamp(1.8rem, 3.8vw, 2.6rem);
   margin: 0 auto;
@@ -1155,7 +1155,7 @@ textarea,
 
 /* Both sides now use consistent styling */
 
-.brochure-grid,
+.menu-grid,
 .deep-dive-grid {
   position: relative;
   display: grid;
@@ -1165,13 +1165,13 @@ textarea,
   z-index: 2;
 }
 
-.brochure-grid > *,
+.menu-grid > *,
 .deep-dive-grid > * {
   min-width: 0;
   overflow: hidden;
 }
 
-.brochure-card {
+.menu-card {
   padding: 1.8rem;
   border-radius: 24px;
   /* Zen-inspired calming card background with soft texture */
@@ -1203,7 +1203,7 @@ textarea,
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.brochure-card:hover {
+.menu-card:hover {
   transform: translateY(-4px);
   box-shadow: 
     0 20px 45px rgba(0, 0, 0, 0.2),
@@ -1211,15 +1211,15 @@ textarea,
     inset 0 -1px 0 rgba(0, 0, 0, 0.05);
 }
 
-.brochure-card h3,
-.brochure-card p {
+.menu-card h3,
+.menu-card p {
   word-wrap: break-word;
   overflow-wrap: break-word;
   max-width: 100%;
 }
 
 /* Small decorative corner on cards */
-.brochure-card::before {
+.menu-card::before {
   content: '';
   position: absolute;
   top: 0.5rem;
@@ -1232,13 +1232,13 @@ textarea,
   opacity: 0.6;
 }
 
-.brochure-card h3 {
+.menu-card h3 {
   font-size: 1.3rem;
   margin-bottom: 0.6rem;
   font-family: 'Playfair Display', serif;
 }
 
-.brochure-card p {
+.menu-card p {
   margin: 0;
   color: rgba(44, 27, 16, 0.8);
 }
@@ -1310,7 +1310,7 @@ textarea,
     display: none;
   }
 
-  .brochure-container {
+  .menu-container {
     height: auto;
     min-height: 600px;
   }
@@ -1334,7 +1334,7 @@ textarea,
     left: 8px;
   }
 
-  .brochure-grid,
+  .menu-grid,
   .deep-dive-grid {
     grid-template-columns: 1fr;
     padding: 1rem 1.5rem 2.5rem;

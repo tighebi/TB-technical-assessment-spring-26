@@ -12,10 +12,10 @@ interface Comment {
 }
 
 interface CommentsProps {
-  pageId: string;
+  teaType: string;
 }
 
-export default function Comments({ pageId }: CommentsProps) {
+export default function Comments({ teaType }: CommentsProps) {
   const [comments, setComments] = useState<Comment[]>([]);
   const [newComment, setNewComment] = useState('');
   const [authorName, setAuthorName] = useState('');
@@ -32,7 +32,7 @@ export default function Comments({ pageId }: CommentsProps) {
     const fetchComments = async () => {
       try {
         setLoading(true);
-        const response = await fetch(`${API_BASE}/api/comments/${pageId}`);
+        const response = await fetch(`${API_BASE}/api/comments/${teaType}`);
         if (response.ok) {
           const data = await response.json();
           const mappedComments: Comment[] = data.map((c: any) => ({
@@ -52,7 +52,7 @@ export default function Comments({ pageId }: CommentsProps) {
 
     fetchComments();
     setNewComment(''); // Clear input when switching pages
-  }, [pageId]);
+  }, [teaType]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,7 +67,7 @@ export default function Comments({ pageId }: CommentsProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ 
           userName: authorName, 
-          teaType: pageId, 
+          teaType: teaType, 
           text: newComment 
         })
       });
