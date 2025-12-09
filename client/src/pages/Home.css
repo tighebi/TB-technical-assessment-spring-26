@@ -39,30 +39,30 @@ textarea,
   display: flex;
   flex-direction: column;
   gap: 0;
-  /* Purple background with soft organic textures */
+  /* Green and tan background with soft organic textures */
   background: 
     /* Subtle paper texture overlay */
     repeating-linear-gradient(
       45deg,
       transparent,
       transparent 10px,
-      rgba(200, 180, 255, 0.02) 10px,
-      rgba(200, 180, 255, 0.02) 11px
+      rgba(201, 165, 112, 0.02) 10px,
+      rgba(201, 165, 112, 0.02) 11px
     ),
     /* Soft radial light effects */
-    radial-gradient(ellipse 120% 100% at 50% 0%, rgba(200, 180, 255, 0.2) 0%, transparent 60%),
-    radial-gradient(ellipse 80% 120% at 20% 100%, rgba(180, 160, 240, 0.15) 0%, transparent 50%),
-    radial-gradient(ellipse 100% 80% at 80% 50%, rgba(160, 140, 220, 0.12) 0%, transparent 50%),
-    /* Gentle flowing purple gradient */
+    radial-gradient(ellipse 120% 100% at 50% 0%, rgba(201, 165, 112, 0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 80% 120% at 20% 100%, rgba(74, 93, 58, 0.12) 0%, transparent 50%),
+    radial-gradient(ellipse 100% 80% at 80% 50%, rgba(184, 148, 95, 0.1) 0%, transparent 50%),
+    /* Gentle flowing green and tan gradient */
     linear-gradient(
       180deg,
-      #e6d3f5 0%,      /* Light Purple - soft and calming */
-      #d9c4ea 20%,     /* Soft lavender */
-      #ccb5df 40%,     /* Warm purple */
-      #a570c9 60%,     /* Medium Purple */
-      #8d6b9b 80%,     /* Deep purple */
-      #7d4a6b 95%,     /* Dark purple */
-      #5d3a4a 100%     /* Very Dark Purple - grounding */
+      #f5e3c8 0%,      /* Light tan - soft and calming */
+      #e8d4b8 20%,     /* Soft beige */
+      #d4c4a0 40%,     /* Warm tan */
+      #a8a080 60%,     /* Medium tan */
+      #6b7d5a 80%,     /* Green-tan mix */
+      #4a5d3a 95%,     /* Dark green */
+      #3d4f2f 100%     /* Very Dark Green - grounding */
     );
   background-attachment: fixed;
   position: relative;
@@ -79,8 +79,8 @@ textarea,
   bottom: 0;
   background: 
     /* Gentle light rays */
-    radial-gradient(ellipse at 30% 20%, rgba(200, 180, 255, 0.08) 0%, transparent 70%),
-    radial-gradient(ellipse at 70% 80%, rgba(180, 160, 240, 0.06) 0%, transparent 70%);
+    radial-gradient(ellipse at 30% 20%, rgba(201, 165, 112, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse at 70% 80%, rgba(74, 93, 58, 0.05) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
   mix-blend-mode: soft-light;
@@ -165,9 +165,9 @@ textarea,
   /* Gentle gradient overlay */
   background: linear-gradient(
     160deg,
-    rgba(200, 180, 255, 0.05) 0%,
+    rgba(201, 165, 112, 0.04) 0%,
     transparent 40%,
-    rgba(180, 160, 240, 0.03) 100%
+    rgba(74, 93, 58, 0.02) 100%
   );
   opacity: 0.5;
   pointer-events: none;
@@ -187,7 +187,7 @@ textarea,
   width: 20px;
   height: 20px;
   opacity: 0.15;
-  background: radial-gradient(ellipse, rgba(120, 100, 180, 0.4) 0%, transparent 70%);
+  background: radial-gradient(ellipse, rgba(74, 93, 58, 0.3) 0%, transparent 70%);
   border-radius: 50% 0 50% 0;
   transform: rotate(45deg);
   animation: floatTeaLeaf 20s infinite ease-in-out;
@@ -264,16 +264,16 @@ textarea,
   inset: 0;
   /* Soft organic light */
   background: 
-    radial-gradient(ellipse 150% 120% at 50% 30%, rgba(200, 180, 255, 0.18) 0%, transparent 60%),
-    radial-gradient(ellipse 100% 150% at 20% 80%, rgba(180, 160, 240, 0.12) 0%, transparent 50%),
-    radial-gradient(ellipse 120% 100% at 80% 50%, rgba(160, 140, 220, 0.1) 0%, transparent 50%),
+    radial-gradient(ellipse 150% 120% at 50% 30%, rgba(201, 165, 112, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 100% 150% at 20% 80%, rgba(74, 93, 58, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse 120% 100% at 80% 50%, rgba(184, 148, 95, 0.07) 0%, transparent 50%),
     /* Very subtle texture overlay */
     repeating-linear-gradient(
       45deg,
       transparent,
       transparent 20px,
-      rgba(200, 180, 255, 0.02) 20px,
-      rgba(200, 180, 255, 0.02) 21px
+      rgba(201, 165, 112, 0.02) 20px,
+      rgba(201, 165, 112, 0.02) 21px
     );
   opacity: 0.6;
   pointer-events: none;
@@ -521,9 +521,9 @@ textarea,
   text-align: center;
   position: relative;
   z-index: 5;
-  /* Soft purple background with gentle light */
+  /* Soft green and tan background with gentle light */
   background: 
-    radial-gradient(ellipse 120% 80% at 50% 50%, rgba(200, 180, 255, 0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 120% 80% at 50% 50%, rgba(201, 165, 112, 0.08) 0%, transparent 70%),
     transparent;
 }
 
@@ -541,17 +541,17 @@ textarea,
   padding: 6rem 0 3rem;
   display: flex;
   justify-content: center;
-  /* Soft purple background with gentle organic shapes */
+  /* Soft green and tan background with gentle organic shapes */
   background: 
     /* Subtle radial light from center */
-    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(200, 180, 255, 0.15) 0%, transparent 70%),
+    radial-gradient(ellipse 100% 80% at 50% 50%, rgba(201, 165, 112, 0.1) 0%, transparent 70%),
     /* Very subtle texture */
     repeating-linear-gradient(
       0deg,
       transparent,
       transparent 15px,
-      rgba(200, 180, 255, 0.02) 15px,
-      rgba(200, 180, 255, 0.02) 16px
+      rgba(201, 165, 112, 0.02) 15px,
+      rgba(201, 165, 112, 0.02) 16px
     ),
     transparent;
   position: relative;
@@ -567,8 +567,8 @@ textarea,
   bottom: 0;
   /* Soft organic light effects */
   background: 
-    radial-gradient(ellipse at 30% 20%, rgba(180, 160, 240, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 70% 80%, rgba(160, 140, 220, 0.06) 0%, transparent 60%);
+    radial-gradient(ellipse at 30% 20%, rgba(201, 165, 112, 0.06) 0%, transparent 60%),
+    radial-gradient(ellipse at 70% 80%, rgba(74, 93, 58, 0.05) 0%, transparent 60%);
   pointer-events: none;
   mix-blend-mode: overlay;
   opacity: 0.5;
