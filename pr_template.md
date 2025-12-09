@@ -20,7 +20,7 @@ Please check off which features you have implemented:
 ## Screen Recording 
 **Link**: https://drive.google.com/file/d/1Sn5sdEZns9dYVW2OC8LWPxB1_tjqftTW/view?usp=sharing
 
-Website Link: https://tb-technical-assessment-spring-26-6.vercel.app
+Website Link: https://tb-technical-assessment-spring-26-x.vercel.app
 
 ## Written Portion
 1. **How did the project go? What parts of it did you most enjoy / find yourself good at?**
