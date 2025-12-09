@@ -18,7 +18,6 @@ export function smoothScrollToElement(
     return;
   }
 
-  let animationFrameId: number | null = null;
   let isAnimating = true;
   const startTime = performance.now();
 
@@ -39,19 +38,18 @@ export function smoothScrollToElement(
     });
 
     if (progress < 1) {
-      animationFrameId = requestAnimationFrame(animate);
+      requestAnimationFrame(animate);
     } else {
       window.scrollTo({
         top: targetPosition,
         behavior: 'auto'
       });
       isAnimating = false;
-      animationFrameId = null;
       onComplete?.();
     }
   };
 
-  animationFrameId = requestAnimationFrame(animate);
+  requestAnimationFrame(animate);
 }
 
 /**
